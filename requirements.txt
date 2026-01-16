@@ -9,6 +9,11 @@ openai==1.10.0
 # Environment & Config
 python-dotenv==1.0.0
 
+# Authentication
+PyJWT==2.8.0
+cryptography==41.0.7
+jwcrypto==1.5.1
+
 # HTTP Requests
 httpx==0.26.0
 requests==2.31.0

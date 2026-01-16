@@ -1,10 +1,10 @@
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 import os
 import shutil
-from typing import List
+from typing import List, Dict
 from dotenv import load_dotenv
 import json
 
@@ -16,6 +16,7 @@ from backend.models.schemas import (
 )
 from backend.services.vision_service import VisionService
 from backend.services.photoroom_service import PhotoroomService, PhotoroomCreditsExhaustedError
+from backend.services.auth_service import get_current_user
 
 # Load environment variables
 load_dotenv()
@@ -57,13 +58,15 @@ async def root():
 
 @app.post("/api/stage1/extract", response_model=MenuExtractionResult)
 async def extract_menu(
-    menu_file: UploadFile = File(...)
+    menu_file: UploadFile = File(...),
+    user: Dict = Depends(get_current_user)
 ):
     """
-    Stage 1: Extract menu items from uploaded PDF or image
+    Stage 1: Extract menu items from uploaded PDF or image (Protected)
 
     Args:
         menu_file: Uploaded menu file (PDF or image)
+        user: Authenticated user (injected by Clerk)
 
     Returns:
         MenuExtractionResult with extracted menu items
@@ -102,14 +105,16 @@ async def extract_menu(
 @app.post("/api/stage2/match", response_model=PhotoMatchResult)
 async def match_photo_to_menu(
     photo: UploadFile = File(...),
-    menu_items: str = Form(...)
+    menu_items: str = Form(...),
+    user: Dict = Depends(get_current_user)
 ):
     """
-    Stage 2: Match uploaded photo to menu items
+    Stage 2: Match uploaded photo to menu items (Protected)
 
     Args:
         photo: Uploaded food photo
         menu_items: JSON array of menu item names
+        user: Authenticated user (injected by Clerk)
 
     Returns:
         PhotoMatchResult with matched item and confidence
@@ -139,13 +144,15 @@ async def match_photo_to_menu(
 
 @app.post("/api/stage3/assess", response_model=PhotoQualityAssessment)
 async def assess_photo_quality(
-    photo: UploadFile = File(...)
+    photo: UploadFile = File(...),
+    user: Dict = Depends(get_current_user)
 ):
     """
-    Stage 3: Assess photo quality
+    Stage 3: Assess photo quality (Protected)
 
     Args:
         photo: Uploaded food photo
+        user: Authenticated user (injected by Clerk)
 
     Returns:
         PhotoQualityAssessment with quality scores
@@ -168,14 +175,16 @@ async def assess_photo_quality(
 @app.post("/api/stage4/enhance", response_model=PhotoroomEnhancementResult)
 async def enhance_photo(
     photo: UploadFile = File(...),
-    background_color: str = Form("white")
+    background_color: str = Form("white"),
+    user: Dict = Depends(get_current_user)
 ):
     """
-    Stage 4: Enhance photo using Photoroom API
+    Stage 4: Enhance photo using Photoroom API (Protected)
 
     Args:
         photo: Uploaded food photo
         background_color: Background color (default: white)
+        user: Authenticated user (injected by Clerk)
 
     Returns:
         PhotoroomEnhancementResult with enhanced image path
@@ -203,14 +212,16 @@ async def enhance_photo(
 @app.post("/api/full-pipeline")
 async def full_pipeline(
     photo: UploadFile = File(...),
-    menu_items: str = Form(...)
+    menu_items: str = Form(...),
+    user: Dict = Depends(get_current_user)
 ):
     """
-    Run the full pipeline: Stage 2 -> Stage 3 -> Stage 4
+    Run the full pipeline: Stage 2 -> Stage 3 -> Stage 4 (Protected)
 
     Args:
         photo: Uploaded food photo
         menu_items: JSON array of menu item names
+        user: Authenticated user (injected by Clerk)
 
     Returns:
         Combined results from all stages

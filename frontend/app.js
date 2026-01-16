@@ -4,6 +4,43 @@ const API_BASE = window.location.origin;
 // Global state
 let uploadedPhoto = null;
 let uploadedMenuFile = null;
+let clerkInstance = null;
+
+// Initialize Clerk
+window.addEventListener('load', async () => {
+    if (window.Clerk) {
+        try {
+            clerkInstance = window.Clerk;
+            await clerkInstance.load();
+
+            // Check if user is signed in
+            if (clerkInstance.user) {
+                // User is signed in, mount user button
+                const userButtonContainer = document.getElementById('user-button-container');
+                if (userButtonContainer) {
+                    clerkInstance.mountUserButton(userButtonContainer);
+                }
+            } else {
+                // User is not signed in, redirect to sign in
+                clerkInstance.redirectToSignIn();
+            }
+        } catch (error) {
+            console.error('Clerk initialization error:', error);
+            alert('Authentication system failed to load. Please refresh the page.');
+        }
+    } else {
+        console.error('Clerk not loaded');
+        alert('Authentication system not loaded. Please refresh the page.');
+    }
+});
+
+// Helper function to get auth token
+async function getAuthToken() {
+    if (!clerkInstance || !clerkInstance.session) {
+        throw new Error('Not authenticated');
+    }
+    return await clerkInstance.session.getToken();
+}
 
 // Menu Items Management
 function addMenuItem() {
@@ -98,11 +135,15 @@ async function extractMenu() {
     showLoading();
 
     try {
+        const token = await getAuthToken();
         const formData = new FormData();
         formData.append('menu_file', uploadedMenuFile);
 
         const response = await fetch(`${API_BASE}/api/stage1/extract`, {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
             body: formData
         });
 
@@ -206,12 +247,16 @@ async function runStage2() {
     showLoading();
 
     try {
+        const token = await getAuthToken();
         const formData = new FormData();
         formData.append('photo', uploadedPhoto);
         formData.append('menu_items', JSON.stringify(menuItems));
 
         const response = await fetch(`${API_BASE}/api/stage2/match`, {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
             body: formData
         });
 
@@ -278,11 +323,15 @@ async function runStage3() {
     showLoading();
 
     try {
+        const token = await getAuthToken();
         const formData = new FormData();
         formData.append('photo', uploadedPhoto);
 
         const response = await fetch(`${API_BASE}/api/stage3/assess`, {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
             body: formData
         });
 
@@ -371,12 +420,16 @@ async function runStage4() {
     showLoading();
 
     try {
+        const token = await getAuthToken();
         const formData = new FormData();
         formData.append('photo', uploadedPhoto);
         formData.append('background_color', 'white');
 
         const response = await fetch(`${API_BASE}/api/stage4/enhance`, {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
             body: formData
         });
 
@@ -467,12 +520,16 @@ async function runFullPipeline() {
     showLoading();
 
     try {
+        const token = await getAuthToken();
         const formData = new FormData();
         formData.append('photo', uploadedPhoto);
         formData.append('menu_items', JSON.stringify(menuItems));
 
         const response = await fetch(`${API_BASE}/api/full-pipeline`, {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
             body: formData
         });
 

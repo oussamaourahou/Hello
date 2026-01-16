@@ -17,9 +17,21 @@ body {
 }
 
 header {
-    text-align: center;
     color: white;
     margin-bottom: 30px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.header-title {
+    flex: 1;
+    text-align: center;
 }
 
 header h1 {
@@ -30,6 +42,22 @@ header h1 {
 header p {
     font-size: 1.1rem;
     opacity: 0.9;
+}
+
+.user-button-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Clerk user button styling */
+.cl-userButtonBox {
+    display: flex;
+    align-items: center;
+}
+
+.cl-userButton {
+    border-radius: 50%;
 }
 
 .main-content {
