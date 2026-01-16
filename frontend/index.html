@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glovo Menu AI Pipeline</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🍽️ Glovo Menu AI Pipeline</h1>
+            <p>AI-powered menu photo processing</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Left Panel: Input -->
+            <div class="panel input-panel">
+                <h2>Input</h2>
+
+                <!-- Menu Items Editor -->
+                <div class="section">
+                    <h3>Menu Items</h3>
+                    <div class="menu-items-editor">
+                        <div id="menuItemsList" class="menu-items-list">
+                            <!-- Default items -->
+                            <div class="menu-item">
+                                <span>Breakfast Beldi</span>
+                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+                            </div>
+                            <div class="menu-item">
+                                <span>Breakfast Norvégien</span>
+                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+                            </div>
+                            <div class="menu-item">
+                                <span>Breakfast Gourmande</span>
+                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+                            </div>
+                            <div class="menu-item">
+                                <span>Breakfast British</span>
+                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+                            </div>
+                            <div class="menu-item">
+                                <span>Breakfast Espagnol</span>
+                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+                            </div>
+                            <div class="menu-item">
+                                <span>Breakfast Protéiné</span>
+                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+                            </div>
+                        </div>
+                        <div class="add-item-form">
+                            <input type="text" id="newItemInput" placeholder="Add new item..." />
+                            <button onclick="addMenuItem()" class="btn-add">+ Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo Upload -->
+                <div class="section">
+                    <h3>Upload Photo</h3>
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelect(event)" />
+                        <div class="upload-placeholder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <p>Click or drag to upload photo</p>
+                        </div>
+                        <div id="photoPreview" class="photo-preview" style="display: none;">
+                            <img id="previewImg" src="" alt="Preview" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="section action-buttons">
+                    <button onclick="runStage2()" class="btn-primary" id="stage2Btn">
+                        Stage 2: Match Photo
+                    </button>
+                    <button onclick="runStage3()" class="btn-primary" id="stage3Btn">
+                        Stage 3: Assess Quality
+                    </button>
+                    <button onclick="runStage4()" class="btn-primary" id="stage4Btn">
+                        Stage 4: Enhance Photo
+                    </button>
+                    <button onclick="runFullPipeline()" class="btn-full" id="fullPipelineBtn">
+                        Run Full Pipeline
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Panel: Results -->
+            <div class="panel results-panel">
+                <h2>Results</h2>
+
+                <div id="loadingIndicator" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Processing...</p>
+                </div>
+
+                <div id="resultsContent" class="results-content">
+                    <p class="empty-state">Upload a photo and run a stage to see results</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
