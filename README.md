@@ -2,6 +2,12 @@
 
 AI-powered restaurant menu photo processing system that matches food photos to menu items, assesses quality, and enhances images.
 
+## 🚀 Quick Deploy
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/new?template=https://github.com/oussamaourahou/Hello)
+
+Or deploy to [Render](https://render.com) - see [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+
 ## Features
 
 - **Stage 2**: Photo-to-Item Matching using OpenAI GPT-4 Vision

@@ -1,5 +1,5 @@
-// API Base URL
-const API_BASE = 'http://localhost:8000';
+// API Base URL - use relative path for deployment
+const API_BASE = window.location.origin;
 
 // Global state
 let uploadedPhoto = null;

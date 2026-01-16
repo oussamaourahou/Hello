@@ -40,7 +40,7 @@ vision_service = VisionService()
 photoroom_service = PhotoroomService()
 
 
-@app.get("/")
+@app.get("/api")
 async def root():
     return {
         "message": "Glovo Menu AI Pipeline",
@@ -206,6 +206,10 @@ async def get_upload(filename: str):
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found")
     return FileResponse(file_path)
+
+
+# Mount static files for frontend (must be after all API routes)
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 
 if __name__ == "__main__":
