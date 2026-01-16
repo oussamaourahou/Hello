@@ -11,14 +11,14 @@ class PhotoroomService:
     async def enhance_photo(
         self,
         image_path: str,
-        background_color: str = "white"
+        background_style: str = "white"
     ) -> PhotoroomEnhancementResult:
         """
-        Stage 4: Enhance photo using Photoroom API
+        Stage 4: Enhance photo using Photoroom API with AI Food mode
 
         Args:
             image_path: Path to the food photo
-            background_color: Background color (default: white)
+            background_style: Background style - "white", "wooden_table", "plate", or custom color
 
         Returns:
             PhotoroomEnhancementResult with enhanced image URL
@@ -37,10 +37,31 @@ class PhotoroomService:
             "image_file": ("image.jpg", image_data, "image/jpeg")
         }
 
+        # Enhanced parameters for food photography
         data = {
-            "background.color": background_color,
-            "outputSize": "1024x1024"
+            # AI Food mode for food-specific beautification
+            "ai.food": "true",
+
+            # Background settings
+            "background.color": background_style if background_style in ["white", "black"] else "white",
+
+            # Image enhancements
+            "outputSize": "1024x1024",
+
+            # Shadow for depth and realism
+            "shadow.mode": "ai.auto",
+
+            # Padding for better composition
+            "padding": "0.1"
         }
+
+        transformations = [
+            "AI Food Enhancement (sharpness, color, lighting)",
+            "Background removal and replacement",
+            f"Background: {background_style}",
+            "Automatic shadow generation",
+            "Standardized size: 1024x1024"
+        ]
 
         # Call Photoroom API
         async with httpx.AsyncClient(timeout=30.0) as client:
@@ -63,9 +84,5 @@ class PhotoroomService:
             return PhotoroomEnhancementResult(
                 enhanced_image_url=enhanced_image_path,
                 original_image_url=image_path,
-                transformations_applied=[
-                    "Background removal",
-                    f"Background color: {background_color}",
-                    "Standardized size: 1024x1024"
-                ]
+                transformations_applied=transformations
             )

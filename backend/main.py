@@ -208,6 +208,38 @@ async def get_upload(filename: str):
     return FileResponse(file_path)
 
 
+@app.get("/api/download/{filename}")
+async def download_image(filename: str, dish_name: str = "enhanced_dish"):
+    """
+    Download enhanced image with custom filename
+
+    Args:
+        filename: Image filename in uploads directory
+        dish_name: Name of the dish (used as download filename)
+
+    Returns:
+        File download with dish name
+    """
+    file_path = os.path.join(UPLOAD_DIR, filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Sanitize dish name for filename
+    safe_dish_name = "".join(c for c in dish_name if c.isalnum() or c in (' ', '-', '_')).strip()
+    safe_dish_name = safe_dish_name.replace(' ', '_')
+
+    # Get file extension
+    ext = filename.split('.')[-1] if '.' in filename else 'jpg'
+    download_filename = f"{safe_dish_name}.{ext}"
+
+    return FileResponse(
+        file_path,
+        media_type="image/jpeg",
+        filename=download_filename,
+        headers={"Content-Disposition": f'attachment; filename="{download_filename}"'}
+    )
+
+
 # Mount static files for frontend (must be after all API routes)
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 

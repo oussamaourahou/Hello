@@ -36,29 +36,78 @@ class VisionService:
         # Create the prompt
         menu_list = "\n".join([f"- {item}" for item in menu_items])
 
-        prompt = f"""You are an expert food identification AI for a restaurant menu management system.
+        prompt = f"""You are an EXPERT food identification AI for Glovo restaurant menu management.
 
-Analyze this food photo and match it to one of the following menu items:
+STRICT MATCHING RULES:
+1. You MUST match to EXACTLY ONE item from the menu list below
+2. Use ONLY the EXACT name from the list (no variations or modifications)
+3. If the dish doesn't clearly match ANY item, set confidence < 40
+4. Be STRICT - better to have low confidence than wrong match
 
+MENU ITEMS:
 {menu_list}
 
-Your task:
-1. Identify what dish is shown in the photo
-2. Match it to the MOST LIKELY item from the menu list above
-3. Provide a confidence score (0-100)
-4. Write a detailed, appetizing description of the dish (2-3 sentences)
-5. Explain your reasoning for the match
+CUISINE CONTEXT & IDENTIFICATION CRITERIA:
+Common breakfast items and their typical characteristics:
 
-Respond in JSON format:
+**Breakfast Beldi** (Traditional Moroccan):
+- Bread: Msemen, Batbout, Khobz, Harcha, Baghrir
+- Proteins: Eggs (often sunny-side), cheese, olives
+- Accompaniments: Olive oil, honey, amlou, fresh cheese
+- Presentation: Traditional tagine, rustic serving
+
+**Breakfast Norvégien** (Scandinavian/Nordic):
+- Proteins: Smoked salmon, herring, gravlax
+- Bread: Dark rye, crisp bread
+- Accompaniments: Cream cheese, dill, capers, red onion
+- Presentation: Elegant, minimalist plating
+
+**Breakfast Gourmande** (French Gourmet):
+- Bread: Croissants, pain au chocolat, baguette
+- Proteins: Poached eggs, soft-boiled eggs
+- Presentation: Refined, artistic plating
+- Accompaniments: Fine cheeses, jams, butter
+
+**Breakfast British** (Traditional English):
+- Proteins: Bacon, sausages, eggs (fried/scrambled)
+- Accompaniments: Baked beans, grilled tomatoes, mushrooms, toast
+- Presentation: Hearty, full plate
+
+**Breakfast Espagnol** (Spanish):
+- Proteins: Chorizo, jamón, eggs
+- Bread: Pan con tomate, tostada
+- Accompaniments: Tomatoes, peppers, potatoes
+- Presentation: Colorful, tapas-style
+
+**Breakfast Protéiné** (High-Protein/Fitness):
+- Proteins: Grilled chicken, egg whites, Greek yogurt, protein powder
+- Carbs: Minimal or complex (oats, sweet potato)
+- Presentation: Clean, portion-controlled, fitness-focused
+
+CONFIDENCE SCORING (BE STRICT):
+- 90-100: Perfect match - ALL key elements align (bread type, proteins, presentation style, cultural markers)
+- 70-89: Strong match - MOST key elements align clearly
+- 50-69: Probable match - SOME key elements align, but missing important markers
+- 30-49: Weak match - Minimal alignment, significant doubt
+- 0-29: No clear match - Does not fit any menu item
+
+ANALYSIS PROCESS:
+1. Identify ALL visible elements: bread type, proteins, eggs style, garnishes, presentation
+2. Compare against EACH menu item's typical characteristics
+3. Determine best match based on cultural cuisine markers
+4. Assign confidence based on how many elements align
+5. If unsure between items, LOWER the confidence score
+
+OUTPUT FORMAT (JSON):
 {{
-    "dish_identified": "what you see in the image",
-    "matched_item": "exact name from the menu list",
-    "confidence": 85,
-    "description": "appetizing description of the dish",
-    "reasoning": "why this match makes sense"
+    "dish_identified": "detailed description of what you see in the image",
+    "matched_item": "EXACT name from menu list above",
+    "confidence": 75,
+    "description": "appetizing 2-3 sentence description of the dish",
+    "reasoning": "detailed explanation of why this match was chosen, mentioning specific visual elements"
 }}
 
-Be specific and use culinary terms. If the match is uncertain, lower the confidence score accordingly."""
+BE STRICT. Better to have low confidence than wrong match."""
 
         # Call OpenAI Vision API
         response = self.client.chat.completions.create(

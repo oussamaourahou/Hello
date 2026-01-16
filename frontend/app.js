@@ -280,7 +280,8 @@ async function runStage4() {
 
         const result = await response.json();
 
-        // Display results with images
+        // Display results with images and download button
+        const enhancedFilename = result.enhanced_image_url.split('/').pop();
         const html = `
             <div class="result-card">
                 <h4>Stage 4: Photo Enhancement (Photoroom)</h4>
@@ -301,8 +302,12 @@ async function runStage4() {
                         <div class="image-label">Original</div>
                     </div>
                     <div>
-                        <img src="${API_BASE}/api/uploads/${result.enhanced_image_url.split('/').pop()}" alt="Enhanced">
+                        <img src="${API_BASE}/api/uploads/${enhancedFilename}" alt="Enhanced">
                         <div class="image-label">Enhanced</div>
+                        <a href="${API_BASE}/api/download/${enhancedFilename}?dish_name=enhanced_dish"
+                           class="btn-download" download>
+                            Download Enhanced
+                        </a>
                     </div>
                 </div>
             </div>
@@ -361,6 +366,7 @@ async function runFullPipeline() {
 
         let enhancementHTML = '';
         if (enhancement) {
+            const enhancedFilename = enhancement.enhanced_image_url.split('/').pop();
             enhancementHTML = `
                 <div class="result-card">
                     <h4>Stage 4: Photo Enhancement</h4>
@@ -368,14 +374,22 @@ async function runFullPipeline() {
                         <span class="result-label">Status:</span>
                         <span class="result-value quality-ready">Enhanced Successfully</span>
                     </div>
+                    <div class="result-item">
+                        <span class="result-label">Transformations:</span>
+                        <span class="result-value">${enhancement.transformations_applied.join(', ')}</span>
+                    </div>
                     <div class="enhanced-images">
                         <div>
                             <img src="${API_BASE}/api/uploads/${uploadedPhoto.name}" alt="Original">
                             <div class="image-label">Original</div>
                         </div>
                         <div>
-                            <img src="${API_BASE}/api/uploads/${enhancement.enhanced_image_url.split('/').pop()}" alt="Enhanced">
-                            <div class="image-label">Enhanced</div>
+                            <img src="${API_BASE}/api/uploads/${enhancedFilename}" alt="Enhanced">
+                            <div class="image-label">Enhanced - ${match.matched_item}</div>
+                            <a href="${API_BASE}/api/download/${enhancedFilename}?dish_name=${encodeURIComponent(match.matched_item)}"
+                               class="btn-download" download>
+                                Download ${match.matched_item}
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -415,6 +429,39 @@ async function runFullPipeline() {
                         <div class="score-fill" style="width: ${quality.overall_score}%"></div>
                     </div>
                 </div>
+
+                <div class="quality-breakdown">
+                    <h5>Detailed Scores:</h5>
+                    <div class="result-item">
+                        <span class="result-label">Resolution:</span>
+                        <span class="result-value">${quality.resolution_score}%</span>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${quality.resolution_score}%"></div>
+                        </div>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Lighting:</span>
+                        <span class="result-value">${quality.lighting_score}%</span>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${quality.lighting_score}%"></div>
+                        </div>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Composition:</span>
+                        <span class="result-value">${quality.composition_score}%</span>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${quality.composition_score}%"></div>
+                        </div>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Presentation:</span>
+                        <span class="result-value">${quality.presentation_score}%</span>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${quality.presentation_score}%"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="result-item">
                     <span class="result-label">Recommendation:</span>
                     <span class="result-value">${quality.recommendation}</span>
