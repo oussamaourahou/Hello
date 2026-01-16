@@ -382,6 +382,29 @@ async function runStage4() {
 
         if (!response.ok) {
             const error = await response.json();
+
+            // Handle Photoroom credits exhaustion specifically
+            if (response.status === 402) {
+                hideLoading();
+                const html = `
+                    <div class="result-card error-card">
+                        <h4>⚠️ Photoroom Credits Exhausted</h4>
+                        <div class="result-item">
+                            <span class="result-value">
+                                You've run out of Photoroom API credits. Please top up your plan to continue using photo enhancement.
+                            </span>
+                        </div>
+                        <div class="result-item">
+                            <a href="https://app.photoroom.com/api-dashboard" target="_blank" class="btn-primary" style="display: inline-block; text-decoration: none; text-align: center;">
+                                Go to Photoroom Dashboard
+                            </a>
+                        </div>
+                    </div>
+                `;
+                displayResults(html);
+                return;
+            }
+
             throw new Error(error.detail || 'Failed to enhance photo');
         }
 
@@ -472,7 +495,24 @@ async function runFullPipeline() {
                             quality.overall_quality === 'Needs Enhancement' ? 'quality-enhance' : 'quality-reject';
 
         let enhancementHTML = '';
-        if (enhancement) {
+        if (result.stage4_error) {
+            // Photoroom credits exhausted
+            enhancementHTML = `
+                <div class="result-card error-card">
+                    <h4>⚠️ Stage 4: Photo Enhancement Unavailable</h4>
+                    <div class="result-item">
+                        <span class="result-value">
+                            Photoroom credits exhausted. Please top up your plan to use photo enhancement.
+                        </span>
+                    </div>
+                    <div class="result-item">
+                        <a href="https://app.photoroom.com/api-dashboard" target="_blank" class="btn-primary" style="display: inline-block; text-decoration: none; text-align: center;">
+                            Go to Photoroom Dashboard
+                        </a>
+                    </div>
+                </div>
+            `;
+        } else if (enhancement) {
             const enhancedFilename = enhancement.enhanced_image_url.split('/').pop();
             enhancementHTML = `
                 <div class="result-card">

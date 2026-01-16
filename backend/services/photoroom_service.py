@@ -3,6 +3,11 @@ import httpx
 from backend.models.schemas import PhotoroomEnhancementResult
 
 
+class PhotoroomCreditsExhaustedError(Exception):
+    """Raised when Photoroom API credits are exhausted"""
+    pass
+
+
 class PhotoroomService:
     def __init__(self):
         self.api_key = os.getenv("PHOTOROOM_API_KEY")
@@ -71,6 +76,12 @@ class PhotoroomService:
                 files=files,
                 data=data
             )
+
+            if response.status_code == 402:
+                # Credits exhausted
+                raise PhotoroomCreditsExhaustedError(
+                    "Photoroom credits exhausted. Please top up at https://app.photoroom.com/api-dashboard"
+                )
 
             if response.status_code != 200:
                 raise Exception(f"Photoroom API error: {response.text}")

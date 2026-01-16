@@ -382,6 +382,21 @@ header p {
     color: #333;
 }
 
+.error-card {
+    border-left: 4px solid #ff9800;
+    background: #fff3e0;
+}
+
+.error-card h4 {
+    color: #e65100;
+}
+
+.error-card .result-value {
+    color: #d84315;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
 .result-item {
     margin-bottom: 12px;
     padding: 10px 0;
