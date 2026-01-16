@@ -32,37 +32,89 @@
         </header>
 
         <div class="main-content">
-            <!-- Input Section (3 columns at top) -->
-            <div class="input-section">
-                <!-- Column 1: Menu Items -->
-                <div class="panel">
-                    <h2>Menu Items</h2>
+            <!-- Top Section: Photo Upload (Left) + Results (Right) -->
+            <div class="top-section">
+                <!-- Left: Photo Upload -->
+                <div class="panel upload-panel">
+                    <h2>📸 Drop Your Food Photo</h2>
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelect(event)" />
+                        <div class="upload-placeholder">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <p style="font-size: 1.1rem; font-weight: 600; margin-top: 15px;">Drop your photo here</p>
+                            <p style="font-size: 0.9rem; color: #999; margin-top: 8px;">or click to browse</p>
+                        </div>
+                        <div id="photoPreview" class="photo-preview" style="display: none;">
+                            <img id="previewImg" src="" alt="Preview" />
+                        </div>
+                    </div>
 
+                    <!-- Action Buttons -->
+                    <div class="action-buttons-vertical">
+                        <button onclick="runStage2()" class="btn-primary" id="stage2Btn">
+                            🔍 Match Photo to Menu
+                        </button>
+                        <button onclick="runStage3()" class="btn-primary" id="stage3Btn">
+                            ✨ Assess Photo Quality
+                        </button>
+                        <button onclick="runStage4()" class="btn-primary" id="stage4Btn">
+                            🎨 Enhance with AI
+                        </button>
+                        <button onclick="runFullPipeline()" class="btn-full" id="fullPipelineBtn">
+                            🚀 Run Full Pipeline
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right: Results -->
+                <div class="panel results-panel">
+                    <h2>Results</h2>
+
+                    <div id="loadingIndicator" class="loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Processing...</p>
+                    </div>
+
+                    <div id="resultsContent" class="results-content">
+                        <p class="empty-state">Upload a photo and run a stage to see results here →</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Section: Menu Items (Full Width) -->
+            <div class="panel menu-panel">
+                <h2>🍽️ Menu Items</h2>
+
+                <div class="menu-section">
                     <!-- Menu Upload (Stage 1) -->
-                    <div class="section">
-                        <p class="section-description">Upload menu to auto-extract</p>
-                        <div class="menu-upload-area">
+                    <div class="menu-extract-section">
+                        <p class="section-description">Upload menu PDF or image to auto-extract items</p>
+                        <div class="menu-upload-compact">
                             <input type="file" id="menuFileInput" accept="image/*,.pdf" onchange="handleMenuFileSelect(event)" />
                             <div class="menu-upload-placeholder" id="menuUploadPlaceholder">
-                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                     <polyline points="14 2 14 8 20 8"></polyline>
                                 </svg>
-                                <p style="font-size: 0.85rem; margin-top: 8px;">Upload Menu</p>
+                                <span>Upload Menu</span>
                             </div>
                             <div id="menuFileInfo" class="menu-file-info" style="display: none;">
                                 <span id="menuFileName"></span>
                                 <button onclick="clearMenuFile()" class="btn-remove">×</button>
                             </div>
+                            <button onclick="extractMenu()" class="btn-extract-compact" id="extractMenuBtn" style="display: none;">
+                                Extract Items
+                            </button>
                         </div>
-                        <button onclick="extractMenu()" class="btn-extract" id="extractMenuBtn" style="display: none;">
-                            Extract Items
-                        </button>
                     </div>
 
                     <!-- Menu Items List -->
                     <div class="menu-items-editor">
-                        <div id="menuItemsList" class="menu-items-list">
+                        <div id="menuItemsList" class="menu-items-list-horizontal">
                             <!-- Default items -->
                             <div class="menu-item">
                                 <span>Breakfast Beldi</span>
@@ -91,61 +143,9 @@
                         </div>
                         <div class="add-item-form">
                             <input type="text" id="newItemInput" placeholder="Add new item..." />
-                            <button onclick="addMenuItem()" class="btn-add">+</button>
+                            <button onclick="addMenuItem()" class="btn-add">+ Add</button>
                         </div>
                     </div>
-                </div>
-
-                <!-- Column 2: Photo Upload -->
-                <div class="panel">
-                    <h2>Upload Photo</h2>
-                    <div class="upload-area" id="uploadArea">
-                        <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelect(event)" />
-                        <div class="upload-placeholder">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                            </svg>
-                            <p>Click or drag photo</p>
-                        </div>
-                        <div id="photoPreview" class="photo-preview" style="display: none;">
-                            <img id="previewImg" src="" alt="Preview" />
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Column 3: Actions -->
-                <div class="panel">
-                    <h2>Actions</h2>
-                    <div class="action-buttons-vertical">
-                        <button onclick="runStage2()" class="btn-primary" id="stage2Btn">
-                            Match Photo to Menu
-                        </button>
-                        <button onclick="runStage3()" class="btn-primary" id="stage3Btn">
-                            Assess Photo Quality
-                        </button>
-                        <button onclick="runStage4()" class="btn-primary" id="stage4Btn">
-                            Enhance with AI
-                        </button>
-                        <button onclick="runFullPipeline()" class="btn-full" id="fullPipelineBtn">
-                            🚀 Run Full Pipeline
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Results Section (full width at bottom) -->
-            <div class="panel results-panel">
-                <h2>Results</h2>
-
-                <div id="loadingIndicator" class="loading" style="display: none;">
-                    <div class="spinner"></div>
-                    <p>Processing...</p>
-                </div>
-
-                <div id="resultsContent" class="results-content">
-                    <p class="empty-state">Upload a photo and run a stage to see results</p>
                 </div>
             </div>
         </div>

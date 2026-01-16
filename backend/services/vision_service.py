@@ -118,7 +118,7 @@ BE STRICT. Better to have low confidence than wrong match."""
         # Call OpenAI Vision API with error handling
         try:
             response = self.client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4o-mini",  # Cost-optimized model for image analysis
                 messages=[
                     {
                         "role": "user",
@@ -211,7 +211,7 @@ Respond in JSON format:
         # Call OpenAI Vision API with error handling
         try:
             response = self.client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4o-mini",  # Cost-optimized model for image analysis
                 messages=[
                     {
                         "role": "user",
@@ -322,7 +322,7 @@ BE PRECISE. Extract only actual menu item names."""
         # Call OpenAI Vision API with error handling
         try:
             response = self.client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4o-mini",  # Cost-optimized model for image analysis
                 messages=[
                     {
                         "role": "user",
