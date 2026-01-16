@@ -15,7 +15,12 @@ from backend.models.schemas import (
     MenuExtractionResult
 )
 from backend.services.vision_service import VisionService
-from backend.services.photoroom_service import PhotoroomService, PhotoroomCreditsExhaustedError
+from backend.services.photoroom_service import (
+    PhotoroomService,
+    PhotoroomCreditsExhaustedError,
+    PhotoroomAPIKeyError,
+    PhotoroomAPIError
+)
 from backend.services.auth_service import get_current_user
 
 # Load environment variables
@@ -200,10 +205,20 @@ async def enhance_photo(
 
         return result
 
-    except PhotoroomCreditsExhaustedError as e:
+    except PhotoroomCreditsExhaustedError:
         raise HTTPException(
             status_code=402,
             detail="Photoroom credits exhausted. Please top up at https://app.photoroom.com/api-dashboard"
+        )
+    except PhotoroomAPIKeyError as e:
+        raise HTTPException(
+            status_code=401,
+            detail=str(e)
+        )
+    except PhotoroomAPIError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error enhancing photo: {str(e)}")
@@ -251,9 +266,13 @@ async def full_pipeline(
         if quality_result.overall_quality != "Reject":
             try:
                 enhancement_result = await photoroom_service.enhance_photo(file_path, "white")
-            except PhotoroomCreditsExhaustedError as e:
+            except PhotoroomCreditsExhaustedError:
                 # Don't fail the whole pipeline, just note the error
                 enhancement_error = "Photoroom credits exhausted. Please top up at https://app.photoroom.com/api-dashboard"
+            except PhotoroomAPIKeyError as e:
+                enhancement_error = str(e)
+            except PhotoroomAPIError as e:
+                enhancement_error = str(e)
 
         return {
             "stage2_match": match_result.dict(),

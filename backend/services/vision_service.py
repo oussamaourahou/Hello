@@ -1,7 +1,7 @@
 import base64
 import os
 from typing import List
-from openai import OpenAI
+from openai import OpenAI, OpenAIError, AuthenticationError, RateLimitError, APIError
 from backend.models.schemas import PhotoMatchResult, PhotoQualityAssessment, MenuExtractionResult
 from pdf2image import convert_from_path
 from PIL import Image
@@ -115,30 +115,49 @@ OUTPUT FORMAT (JSON):
 
 BE STRICT. Better to have low confidence than wrong match."""
 
-        # Call OpenAI Vision API
-        response = self.client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
+        # Call OpenAI Vision API with error handling
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{base64_image}"
+                                }
                             }
-                        }
-                    ]
-                }
-            ],
-            max_tokens=500,
-            response_format={"type": "json_object"}
-        )
+                        ]
+                    }
+                ],
+                max_tokens=500,
+                response_format={"type": "json_object"}
+            )
 
-        # Parse the response
-        import json
-        result = json.loads(response.choices[0].message.content)
+            # Parse the response
+            import json
+            result = json.loads(response.choices[0].message.content)
+
+        except AuthenticationError:
+            raise Exception(
+                "OpenAI API key is invalid or expired. Please check your API key at https://platform.openai.com/api-keys"
+            )
+        except RateLimitError:
+            raise Exception(
+                "OpenAI API rate limit exceeded. Please wait a moment or upgrade your plan at https://platform.openai.com/account/billing"
+            )
+        except APIError as e:
+            if "organization" in str(e).lower():
+                raise Exception(
+                    "OpenAI organization error. Your API key may have organization restrictions. "
+                    "Go to https://platform.openai.com/account/api-keys and create a new key without organization restrictions."
+                )
+            raise Exception(f"OpenAI API error: {str(e)}")
+        except OpenAIError as e:
+            raise Exception(f"OpenAI error: {str(e)}")
 
         return PhotoMatchResult(
             dish_identified=result.get("dish_identified", "Unknown"),
@@ -189,30 +208,49 @@ Respond in JSON format:
     "recommendation": "Photo is excellent and ready to use."
 }"""
 
-        # Call OpenAI Vision API
-        response = self.client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
+        # Call OpenAI Vision API with error handling
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{base64_image}"
+                                }
                             }
-                        }
-                    ]
-                }
-            ],
-            max_tokens=300,
-            response_format={"type": "json_object"}
-        )
+                        ]
+                    }
+                ],
+                max_tokens=300,
+                response_format={"type": "json_object"}
+            )
 
-        # Parse the response
-        import json
-        result = json.loads(response.choices[0].message.content)
+            # Parse the response
+            import json
+            result = json.loads(response.choices[0].message.content)
+
+        except AuthenticationError:
+            raise Exception(
+                "OpenAI API key is invalid or expired. Please check your API key at https://platform.openai.com/api-keys"
+            )
+        except RateLimitError:
+            raise Exception(
+                "OpenAI API rate limit exceeded. Please wait a moment or upgrade your plan."
+            )
+        except APIError as e:
+            if "organization" in str(e).lower():
+                raise Exception(
+                    "OpenAI organization error. Your API key may have organization restrictions. "
+                    "Create a new key without organization restrictions at https://platform.openai.com/account/api-keys"
+                )
+            raise Exception(f"OpenAI API error: {str(e)}")
+        except OpenAIError as e:
+            raise Exception(f"OpenAI error: {str(e)}")
 
         return PhotoQualityAssessment(
             resolution_score=result.get("resolution_score", 0),
@@ -281,34 +319,53 @@ Respond in JSON format:
 
 BE PRECISE. Extract only actual menu item names."""
 
-        # Call OpenAI Vision API
-        response = self.client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
+        # Call OpenAI Vision API with error handling
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{base64_image}"
+                                }
                             }
-                        }
-                    ]
-                }
-            ],
-            max_tokens=1000,
-            response_format={"type": "json_object"}
-        )
+                        ]
+                    }
+                ],
+                max_tokens=1000,
+                response_format={"type": "json_object"}
+            )
 
-        # Parse the response
-        import json
-        result = json.loads(response.choices[0].message.content)
+            # Parse the response
+            import json
+            result = json.loads(response.choices[0].message.content)
 
-        # Clean up temp file if PDF was converted
-        if is_pdf and os.path.exists(image_path):
-            os.remove(image_path)
+        except AuthenticationError:
+            raise Exception(
+                "OpenAI API key is invalid or expired. Please check your API key at https://platform.openai.com/api-keys"
+            )
+        except RateLimitError:
+            raise Exception(
+                "OpenAI API rate limit exceeded. Please wait a moment or upgrade your plan."
+            )
+        except APIError as e:
+            if "organization" in str(e).lower():
+                raise Exception(
+                    "OpenAI organization error. Your API key may have organization restrictions. "
+                    "Create a new key without organization restrictions at https://platform.openai.com/account/api-keys"
+                )
+            raise Exception(f"OpenAI API error: {str(e)}")
+        except OpenAIError as e:
+            raise Exception(f"OpenAI error: {str(e)}")
+        finally:
+            # Clean up temp file if PDF was converted
+            if is_pdf and os.path.exists(image_path):
+                os.remove(image_path)
 
         return MenuExtractionResult(
             menu_items=result.get("menu_items", []),

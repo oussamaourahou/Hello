@@ -8,6 +8,16 @@ class PhotoroomCreditsExhaustedError(Exception):
     pass
 
 
+class PhotoroomAPIKeyError(Exception):
+    """Raised when Photoroom API key is invalid"""
+    pass
+
+
+class PhotoroomAPIError(Exception):
+    """Raised for general Photoroom API errors"""
+    pass
+
+
 class PhotoroomService:
     def __init__(self):
         self.api_key = os.getenv("PHOTOROOM_API_KEY")
@@ -77,14 +87,34 @@ class PhotoroomService:
                 data=data
             )
 
+            # Handle different error cases
+            if response.status_code == 401 or response.status_code == 403:
+                # Invalid API key or unauthorized
+                raise PhotoroomAPIKeyError(
+                    "Invalid Photoroom API key. Please check your API key at https://app.photoroom.com/api-dashboard"
+                )
+
             if response.status_code == 402:
                 # Credits exhausted
                 raise PhotoroomCreditsExhaustedError(
                     "Photoroom credits exhausted. Please top up at https://app.photoroom.com/api-dashboard"
                 )
 
+            if response.status_code == 429:
+                # Rate limit
+                raise PhotoroomAPIError(
+                    "Photoroom API rate limit exceeded. Please wait a moment and try again."
+                )
+
             if response.status_code != 200:
-                raise Exception(f"Photoroom API error: {response.text}")
+                error_msg = f"Photoroom API error (status {response.status_code})"
+                try:
+                    error_data = response.json()
+                    if 'detail' in error_data:
+                        error_msg += f": {error_data['detail']}"
+                except:
+                    error_msg += f": {response.text[:200]}"
+                raise PhotoroomAPIError(error_msg)
 
             # Save the enhanced image
             enhanced_image_path = image_path.replace(".", "_enhanced.")
