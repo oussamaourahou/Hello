@@ -39,3 +39,10 @@ class PhotoroomEnhancementResult(BaseModel):
     enhanced_image_url: str
     original_image_url: str
     transformations_applied: List[str]
+
+
+class MenuExtractionResult(BaseModel):
+    """Result of menu extraction from PDF/image"""
+    menu_items: List[str]
+    total_items: int
+    extraction_notes: str  # Any notes about the extraction

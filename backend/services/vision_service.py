@@ -2,7 +2,10 @@ import base64
 import os
 from typing import List
 from openai import OpenAI
-from backend.models.schemas import PhotoMatchResult, PhotoQualityAssessment
+from backend.models.schemas import PhotoMatchResult, PhotoQualityAssessment, MenuExtractionResult
+from pdf2image import convert_from_path
+from PIL import Image
+import io
 
 
 class VisionService:
@@ -216,4 +219,96 @@ Respond in JSON format:
             overall_score=result.get("overall_score", 0),
             overall_quality=result.get("overall_quality", "Reject"),
             recommendation=result.get("recommendation", "")
+        )
+
+    async def extract_menu_items(
+        self,
+        file_path: str,
+        is_pdf: bool = False
+    ) -> MenuExtractionResult:
+        """
+        Stage 1: Extract menu items from PDF or image
+
+        Args:
+            file_path: Path to the menu file (PDF or image)
+            is_pdf: Whether the file is a PDF
+
+        Returns:
+            MenuExtractionResult with extracted menu items
+        """
+
+        # Convert PDF to image if needed
+        if is_pdf:
+            # Convert PDF to images (take first page only for now)
+            images = convert_from_path(file_path, first_page=1, last_page=1)
+
+            # Save the first page as temporary image
+            temp_image_path = file_path.replace('.pdf', '_page1.jpg')
+            images[0].save(temp_image_path, 'JPEG')
+            image_path = temp_image_path
+        else:
+            image_path = file_path
+
+        # Encode the image
+        base64_image = self.encode_image(image_path)
+
+        prompt = """You are an expert menu data extraction AI for restaurant menu management.
+
+Your task is to extract ONLY the menu item names from this menu image.
+
+EXTRACTION RULES:
+1. Extract ONLY the item names (e.g., "Breakfast Beldi", "Croissant", "Pancakes")
+2. DO NOT include prices, descriptions, or ingredients
+3. DO NOT include section headers like "Breakfast", "Lunch", "Desserts" unless they are part of the item name
+4. Extract items in the order they appear on the menu
+5. If an item has variants (e.g., "Coffee Small", "Coffee Large"), list each variant separately
+6. Preserve the exact spelling and capitalization from the menu
+7. Skip any promotional text, disclaimers, or restaurant information
+
+EXAMPLES:
+Good: ["Breakfast Beldi", "Breakfast Norvégien", "Pancakes with Maple Syrup"]
+Bad: ["Breakfast Section", "Beldi - Traditional Moroccan breakfast with eggs", "$12.99"]
+
+Respond in JSON format:
+{
+    "menu_items": ["Item 1", "Item 2", "Item 3"],
+    "total_items": 3,
+    "extraction_notes": "Brief note about the extraction (e.g., 'Found 15 breakfast items' or 'Menu appears to be in French')"
+}
+
+BE PRECISE. Extract only actual menu item names."""
+
+        # Call OpenAI Vision API
+        response = self.client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens=1000,
+            response_format={"type": "json_object"}
+        )
+
+        # Parse the response
+        import json
+        result = json.loads(response.choices[0].message.content)
+
+        # Clean up temp file if PDF was converted
+        if is_pdf and os.path.exists(image_path):
+            os.remove(image_path)
+
+        return MenuExtractionResult(
+            menu_items=result.get("menu_items", []),
+            total_items=result.get("total_items", 0),
+            extraction_notes=result.get("extraction_notes", "")
         )

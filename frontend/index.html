@@ -18,6 +18,31 @@
             <div class="panel input-panel">
                 <h2>Input</h2>
 
+                <!-- Menu Upload (Stage 1) -->
+                <div class="section">
+                    <h3>Extract Menu (Optional)</h3>
+                    <p class="section-description">Upload your menu PDF or image to automatically extract items</p>
+                    <div class="menu-upload-area">
+                        <input type="file" id="menuFileInput" accept="image/*,.pdf" onchange="handleMenuFileSelect(event)" />
+                        <div class="menu-upload-placeholder" id="menuUploadPlaceholder">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="12" y1="18" x2="12" y2="12"></line>
+                                <line x1="9" y1="15" x2="15" y2="15"></line>
+                            </svg>
+                            <p>Upload Menu (PDF or Image)</p>
+                        </div>
+                        <div id="menuFileInfo" class="menu-file-info" style="display: none;">
+                            <span id="menuFileName"></span>
+                            <button onclick="clearMenuFile()" class="btn-remove">×</button>
+                        </div>
+                    </div>
+                    <button onclick="extractMenu()" class="btn-extract" id="extractMenuBtn" style="display: none;">
+                        Extract Menu Items
+                    </button>
+                </div>
+
                 <!-- Menu Items Editor -->
                 <div class="section">
                     <h3>Menu Items</h3>

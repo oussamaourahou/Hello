@@ -3,6 +3,7 @@ const API_BASE = window.location.origin;
 
 // Global state
 let uploadedPhoto = null;
+let uploadedMenuFile = null;
 
 // Menu Items Management
 function addMenuItem() {
@@ -58,6 +59,112 @@ function handlePhotoSelect(event) {
         placeholder.style.display = 'none';
     };
     reader.readAsDataURL(file);
+}
+
+// Menu File Upload (Stage 1)
+function handleMenuFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    uploadedMenuFile = file;
+
+    // Show file info
+    const placeholder = document.getElementById('menuUploadPlaceholder');
+    const fileInfo = document.getElementById('menuFileInfo');
+    const fileName = document.getElementById('menuFileName');
+    const extractBtn = document.getElementById('extractMenuBtn');
+
+    fileName.textContent = file.name;
+    placeholder.style.display = 'none';
+    fileInfo.style.display = 'flex';
+    extractBtn.style.display = 'block';
+}
+
+function clearMenuFile() {
+    uploadedMenuFile = null;
+    document.getElementById('menuFileInput').value = '';
+    document.getElementById('menuUploadPlaceholder').style.display = 'block';
+    document.getElementById('menuFileInfo').style.display = 'none';
+    document.getElementById('extractMenuBtn').style.display = 'none';
+}
+
+// Stage 1: Extract Menu
+async function extractMenu() {
+    if (!uploadedMenuFile) {
+        alert('Please upload a menu file first');
+        return;
+    }
+
+    showLoading();
+
+    try {
+        const formData = new FormData();
+        formData.append('menu_file', uploadedMenuFile);
+
+        const response = await fetch(`${API_BASE}/api/stage1/extract`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to extract menu');
+        }
+
+        const result = await response.json();
+
+        // Clear existing menu items
+        const menuList = document.getElementById('menuItemsList');
+        menuList.innerHTML = '';
+
+        // Add extracted items to the menu list
+        result.menu_items.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'menu-item';
+            itemDiv.innerHTML = `
+                <span>${item}</span>
+                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+            `;
+            menuList.appendChild(itemDiv);
+        });
+
+        // Display extraction results
+        const html = `
+            <div class="result-card">
+                <h4>Stage 1: Menu Extraction</h4>
+
+                <div class="result-item">
+                    <span class="result-label">Items Extracted:</span>
+                    <span class="result-value quality-ready"><strong>${result.total_items} items</strong></span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-label">Extraction Notes:</span>
+                    <span class="result-value">${result.extraction_notes}</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-label">Menu Items:</span>
+                    <div class="extracted-items">
+                        ${result.menu_items.map(item => `<div class="extracted-item">${item}</div>`).join('')}
+                    </div>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-value quality-ready">✓ Menu items have been added to your list!</span>
+                </div>
+            </div>
+        `;
+
+        displayResults(html);
+
+        // Clear the uploaded menu file
+        clearMenuFile();
+
+    } catch (error) {
+        hideLoading();
+        alert(`Error: ${error.message}`);
+    }
 }
 
 // Allow Enter key to add items

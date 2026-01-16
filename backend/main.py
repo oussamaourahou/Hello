@@ -11,7 +11,8 @@ import json
 from backend.models.schemas import (
     PhotoMatchResult,
     PhotoQualityAssessment,
-    PhotoroomEnhancementResult
+    PhotoroomEnhancementResult,
+    MenuExtractionResult
 )
 from backend.services.vision_service import VisionService
 from backend.services.photoroom_service import PhotoroomService
@@ -46,11 +47,56 @@ async def root():
         "message": "Glovo Menu AI Pipeline",
         "version": "1.0.0",
         "stages": {
+            "stage_1": "Menu Extraction (PDF/Image)",
             "stage_2": "Photo-to-Item Matching",
             "stage_3": "Quality Assessment",
             "stage_4": "Photo Enhancement (Photoroom)"
         }
     }
+
+
+@app.post("/api/stage1/extract", response_model=MenuExtractionResult)
+async def extract_menu(
+    menu_file: UploadFile = File(...)
+):
+    """
+    Stage 1: Extract menu items from uploaded PDF or image
+
+    Args:
+        menu_file: Uploaded menu file (PDF or image)
+
+    Returns:
+        MenuExtractionResult with extracted menu items
+    """
+    try:
+        # Check file type
+        filename = menu_file.filename.lower()
+        is_pdf = filename.endswith('.pdf')
+        is_image = filename.endswith(('.jpg', '.jpeg', '.png', '.webp'))
+
+        if not (is_pdf or is_image):
+            raise HTTPException(
+                status_code=400,
+                detail="File must be a PDF or image (JPG, PNG, WEBP)"
+            )
+
+        # Save uploaded file
+        file_extension = filename.split('.')[-1]
+        file_path = os.path.join(UPLOAD_DIR, f"menu_{menu_file.filename}")
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(menu_file.file, buffer)
+
+        # Call vision service to extract menu items
+        result = await vision_service.extract_menu_items(file_path, is_pdf=is_pdf)
+
+        # Clean up uploaded file
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        return result
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error extracting menu: {str(e)}")
 
 
 @app.post("/api/stage2/match", response_model=PhotoMatchResult)
