@@ -10,7 +10,10 @@ import io
 
 class VisionService:
     def __init__(self):
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # Initialize OpenAI client
+        # Only pass api_key, no organization parameter
+        api_key = os.getenv("OPENAI_API_KEY")
+        self.client = OpenAI(api_key=api_key)
 
     def encode_image(self, image_path: str) -> str:
         """Encode image to base64"""

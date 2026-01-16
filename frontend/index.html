@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Palete Studio</title>
+    <title>Palete Studio - AI Menu Photo Processing</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="style.css">
 
     <!-- Clerk JS SDK -->
@@ -31,38 +32,35 @@
         </header>
 
         <div class="main-content">
-            <!-- Left Panel: Input -->
-            <div class="panel input-panel">
-                <h2>Input</h2>
+            <!-- Input Section (3 columns at top) -->
+            <div class="input-section">
+                <!-- Column 1: Menu Items -->
+                <div class="panel">
+                    <h2>Menu Items</h2>
 
-                <!-- Menu Upload (Stage 1) -->
-                <div class="section">
-                    <h3>Extract Menu (Optional)</h3>
-                    <p class="section-description">Upload your menu PDF or image to automatically extract items</p>
-                    <div class="menu-upload-area">
-                        <input type="file" id="menuFileInput" accept="image/*,.pdf" onchange="handleMenuFileSelect(event)" />
-                        <div class="menu-upload-placeholder" id="menuUploadPlaceholder">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="12" y1="18" x2="12" y2="12"></line>
-                                <line x1="9" y1="15" x2="15" y2="15"></line>
-                            </svg>
-                            <p>Upload Menu (PDF or Image)</p>
+                    <!-- Menu Upload (Stage 1) -->
+                    <div class="section">
+                        <p class="section-description">Upload menu to auto-extract</p>
+                        <div class="menu-upload-area">
+                            <input type="file" id="menuFileInput" accept="image/*,.pdf" onchange="handleMenuFileSelect(event)" />
+                            <div class="menu-upload-placeholder" id="menuUploadPlaceholder">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                <p style="font-size: 0.85rem; margin-top: 8px;">Upload Menu</p>
+                            </div>
+                            <div id="menuFileInfo" class="menu-file-info" style="display: none;">
+                                <span id="menuFileName"></span>
+                                <button onclick="clearMenuFile()" class="btn-remove">×</button>
+                            </div>
                         </div>
-                        <div id="menuFileInfo" class="menu-file-info" style="display: none;">
-                            <span id="menuFileName"></span>
-                            <button onclick="clearMenuFile()" class="btn-remove">×</button>
-                        </div>
+                        <button onclick="extractMenu()" class="btn-extract" id="extractMenuBtn" style="display: none;">
+                            Extract Items
+                        </button>
                     </div>
-                    <button onclick="extractMenu()" class="btn-extract" id="extractMenuBtn" style="display: none;">
-                        Extract Menu Items
-                    </button>
-                </div>
 
-                <!-- Menu Items Editor -->
-                <div class="section">
-                    <h3>Menu Items</h3>
+                    <!-- Menu Items List -->
                     <div class="menu-items-editor">
                         <div id="menuItemsList" class="menu-items-list">
                             <!-- Default items -->
@@ -93,14 +91,14 @@
                         </div>
                         <div class="add-item-form">
                             <input type="text" id="newItemInput" placeholder="Add new item..." />
-                            <button onclick="addMenuItem()" class="btn-add">+ Add</button>
+                            <button onclick="addMenuItem()" class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Photo Upload -->
-                <div class="section">
-                    <h3>Upload Photo</h3>
+                <!-- Column 2: Photo Upload -->
+                <div class="panel">
+                    <h2>Upload Photo</h2>
                     <div class="upload-area" id="uploadArea">
                         <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelect(event)" />
                         <div class="upload-placeholder">
@@ -109,7 +107,7 @@
                                 <polyline points="17 8 12 3 7 8"></polyline>
                                 <line x1="12" y1="3" x2="12" y2="15"></line>
                             </svg>
-                            <p>Click or drag to upload photo</p>
+                            <p>Click or drag photo</p>
                         </div>
                         <div id="photoPreview" class="photo-preview" style="display: none;">
                             <img id="previewImg" src="" alt="Preview" />
@@ -117,24 +115,27 @@
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="section action-buttons">
-                    <button onclick="runStage2()" class="btn-primary" id="stage2Btn">
-                        Stage 2: Match Photo
-                    </button>
-                    <button onclick="runStage3()" class="btn-primary" id="stage3Btn">
-                        Stage 3: Assess Quality
-                    </button>
-                    <button onclick="runStage4()" class="btn-primary" id="stage4Btn">
-                        Stage 4: Enhance Photo
-                    </button>
-                    <button onclick="runFullPipeline()" class="btn-full" id="fullPipelineBtn">
-                        Run Full Pipeline
-                    </button>
+                <!-- Column 3: Actions -->
+                <div class="panel">
+                    <h2>Actions</h2>
+                    <div class="action-buttons-vertical">
+                        <button onclick="runStage2()" class="btn-primary" id="stage2Btn">
+                            Match Photo to Menu
+                        </button>
+                        <button onclick="runStage3()" class="btn-primary" id="stage3Btn">
+                            Assess Photo Quality
+                        </button>
+                        <button onclick="runStage4()" class="btn-primary" id="stage4Btn">
+                            Enhance with AI
+                        </button>
+                        <button onclick="runFullPipeline()" class="btn-full" id="fullPipelineBtn">
+                            🚀 Run Full Pipeline
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Right Panel: Results -->
+            <!-- Results Section (full width at bottom) -->
             <div class="panel results-panel">
                 <h2>Results</h2>
 
