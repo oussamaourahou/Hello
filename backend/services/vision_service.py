@@ -162,7 +162,7 @@ BE STRICT. Better to have low confidence than wrong match."""
         return PhotoMatchResult(
             dish_identified=result.get("dish_identified", "Unknown"),
             matched_item=result.get("matched_item", menu_items[0] if menu_items else "Unknown"),
-            confidence=result.get("confidence", 0),
+            confidence=int(round(result.get("confidence", 0))),  # Round to integer
             description=result.get("description", ""),
             reasoning=result.get("reasoning", "")
         )
@@ -253,11 +253,11 @@ Respond in JSON format:
             raise Exception(f"OpenAI error: {str(e)}")
 
         return PhotoQualityAssessment(
-            resolution_score=result.get("resolution_score", 0),
-            lighting_score=result.get("lighting_score", 0),
-            composition_score=result.get("composition_score", 0),
-            presentation_score=result.get("presentation_score", 0),
-            overall_score=result.get("overall_score", 0),
+            resolution_score=int(round(result.get("resolution_score", 0))),
+            lighting_score=int(round(result.get("lighting_score", 0))),
+            composition_score=int(round(result.get("composition_score", 0))),
+            presentation_score=int(round(result.get("presentation_score", 0))),
+            overall_score=int(round(result.get("overall_score", 0))),
             overall_quality=result.get("overall_quality", "Reject"),
             recommendation=result.get("recommendation", "")
         )

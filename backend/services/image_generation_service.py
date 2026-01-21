@@ -12,7 +12,7 @@ class ImageGenerationService:
 
     async def generate_food_image(self, dish_name: str, cuisine_style: str = None) -> dict:
         """
-        Generate a professional food photo using DALL-E 2
+        Generate a professional food photo using DALL-E 3
 
         Args:
             dish_name: Name of the dish to generate
@@ -22,22 +22,29 @@ class ImageGenerationService:
             dict with image_url and prompt_used
         """
 
-        # Build detailed prompt for food photography
-        cuisine_context = f"{cuisine_style} " if cuisine_style else ""
+        # Build ultra-realistic prompt for Moroccan restaurant food photography
+        # Focus on authentic, appetizing, non-AI looking results
+        cuisine_context = f"{cuisine_style} " if cuisine_style else "Moroccan "
 
-        prompt = f"""Professional food photography of {cuisine_context}{dish_name},
-restaurant menu quality, beautifully plated on white ceramic dish,
-natural lighting, top-down angle, appetizing presentation,
-high resolution, commercial photography style,
-vibrant colors, garnished, modern plating"""
+        prompt = f"""A mouthwatering photo of {cuisine_context}{dish_name} served at a premium Casablanca restaurant.
+The dish is beautifully plated on traditional white ceramic tableware with subtle Moroccan patterns on the rim.
+Shot in natural morning light streaming through arched windows, creating soft shadows that enhance the food's texture and colors.
+The composition shows the dish from a slight overhead angle (45 degrees),
+with authentic garnishes like fresh mint leaves, sesame seeds, or a drizzle of argan oil.
+The background is minimalist - a clean white marble table with a subtle texture.
+The photo captures steam rising from hot dishes, glistening olive oil, and the rich, vibrant colors of fresh ingredients.
+Professional food photography with shallow depth of field, sharp focus on the main dish,
+warm color temperature, and realistic lighting that makes the food look irresistibly appetizing.
+The image should look like it was shot by a professional food photographer for Glovo Morocco's premium restaurant section,
+not AI-generated - authentic, natural, and making viewers immediately want to order this dish."""
 
         try:
-            # Generate image with DALL-E 2 (cost-effective: $0.02 per image)
+            # Generate image with DALL-E 3 (premium quality: $0.04 per image)
             response = self.client.images.generate(
-                model="dall-e-2",
+                model="dall-e-3",
                 prompt=prompt,
                 size="1024x1024",
-                quality="standard",
+                quality="standard",  # Use "hd" for even better quality at $0.08/image
                 n=1,
             )
 
@@ -50,7 +57,7 @@ vibrant colors, garnished, modern plating"""
                 "image_url": local_path,
                 "prompt_used": prompt,
                 "dish_name": dish_name,
-                "generation_model": "dall-e-2"
+                "generation_model": "dall-e-3"
             }
 
         except AuthenticationError:
