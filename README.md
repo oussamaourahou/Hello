@@ -1,6 +1,12 @@
-# Keja Conciergerie
+# SmartHost
 
 Premium short-term rental management website for Nairobi property owners.
+
+**Contact**: Amina Oumal - +254 720 896602
+
+## Live Website
+
+The website is deployed at: **https://oussamaourahou.github.io/Hello/**
 
 ## Features
 
@@ -8,15 +14,16 @@ Premium short-term rental management website for Nairobi property owners.
 - **Fully Responsive**: Optimized for desktop, tablet, and mobile devices
 - **Interactive UI**: FAQ accordion, smooth scrolling, form validation
 - **Revenue Estimate Form**: Lead capture form for potential property owners
+- **Featured Properties**: Showcase of Karen villa and Westlands apartments
 - **Trust Indicators**: Testimonials, case studies, and proof points
 
 ## Site Structure
 
 - **Home**: Hero section with main CTA, proof points, how it works
 - **Services**: Listing setup, pricing & revenue, guest experience, cleaning, maintenance, restocking
+- **Properties**: Featured Karen villa and Westlands apartment showcases
 - **For Owners**: Target audience cards, responsibility comparison table, reporting preview
-- **Pricing**: 3-tier pricing (Essential, Plus, Premium) with pass-through costs
-- **About**: Company values and trust badges
+- **Pricing**: 3-tier pricing (Essential 15%, Plus 20%, Premium 25%)
 - **FAQ**: Accordion-style frequently asked questions
 - **Contact**: Revenue estimate form and WhatsApp integration
 
@@ -26,8 +33,9 @@ Premium short-term rental management website for Nairobi property owners.
 - **CSS3**: Custom properties, Flexbox, Grid, responsive design
 - **JavaScript**: Vanilla JS for interactivity (no dependencies)
 - **Fonts**: Inter from Google Fonts
+- **Hosting**: GitHub Pages
 
-## Getting Started
+## Local Development
 
 1. Open the frontend folder:
 ```bash
@@ -39,54 +47,18 @@ cd frontend
 # Python 3
 python -m http.server 8080
 
-# Or Node.js (if http-server is installed)
+# Or Node.js
 npx http-server -p 8080
 ```
 
 3. Open in browser: `http://localhost:8080`
 
-## Customization
+## Contact Information
 
-### Update Contact Information
-Edit `index.html` to replace placeholder contact details:
-- WhatsApp number: Search for `254700000000` and replace with your actual number
-- Email: Search for `hello@kejaconciergerie.com` and replace
-
-### Update Colors
-Edit `style.css` CSS variables at the top of the file:
-```css
-:root {
-    --color-primary: #0F4C81;
-    --color-accent: #E85D04;
-    /* ... */
-}
-```
-
-### Add Real Images
-Replace the hero placeholder with actual property images by adding an `<img>` tag or background image.
-
-## Form Integration
-
-The revenue estimate form currently logs to console. To connect to a backend:
-
-1. Update the form submission handler in `app.js`
-2. Replace the simulated API call with your actual endpoint
-3. Example with fetch:
-```javascript
-const response = await fetch('/api/leads', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(formData)
-});
-```
-
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+- **WhatsApp**: +254 720 896602
+- **Email**: hello@smarthost.co.ke
+- **Instagram**: @smarthostke
 
 ## License
 
-All rights reserved. Keja Conciergerie 2025.
+All rights reserved. SmartHost 2025.
