@@ -1,70 +1,92 @@
-# Glovo Menu AI Pipeline
+# Keja Conciergerie
 
-AI-powered restaurant menu photo processing system that matches food photos to menu items, assesses quality, and enhances images.
+Premium short-term rental management website for Nairobi property owners.
 
 ## Features
 
-- **Stage 2**: Photo-to-Item Matching using OpenAI GPT-4 Vision
-- **Stage 3**: Photo Quality Assessment
-- **Stage 4**: Photo Enhancement with Photoroom API
-- **Full Pipeline**: Run all stages sequentially
+- **Modern Design**: Clean, professional design inspired by leading property management platforms
+- **Fully Responsive**: Optimized for desktop, tablet, and mobile devices
+- **Interactive UI**: FAQ accordion, smooth scrolling, form validation
+- **Revenue Estimate Form**: Lead capture form for potential property owners
+- **Trust Indicators**: Testimonials, case studies, and proof points
+
+## Site Structure
+
+- **Home**: Hero section with main CTA, proof points, how it works
+- **Services**: Listing setup, pricing & revenue, guest experience, cleaning, maintenance, restocking
+- **For Owners**: Target audience cards, responsibility comparison table, reporting preview
+- **Pricing**: 3-tier pricing (Essential, Plus, Premium) with pass-through costs
+- **About**: Company values and trust badges
+- **FAQ**: Accordion-style frequently asked questions
+- **Contact**: Revenue estimate form and WhatsApp integration
 
 ## Tech Stack
 
-- **Backend**: Python + FastAPI
-- **Frontend**: HTML/CSS/JavaScript
-- **AI**: OpenAI GPT-4 Vision API
-- **Enhancement**: Photoroom API
+- **HTML5**: Semantic, accessible markup
+- **CSS3**: Custom properties, Flexbox, Grid, responsive design
+- **JavaScript**: Vanilla JS for interactivity (no dependencies)
+- **Fonts**: Inter from Google Fonts
 
-## Setup
+## Getting Started
 
-1. Install Python dependencies:
+1. Open the frontend folder:
 ```bash
-pip install -r requirements.txt
+cd frontend
 ```
 
-2. Configure API keys in `.env`:
-```
-OPENAI_API_KEY=your_key_here
-PHOTOROOM_API_KEY=your_key_here
-```
-
-3. Start the backend:
+2. Serve with a simple HTTP server:
 ```bash
-python -m uvicorn backend.main:app --reload
+# Python 3
+python -m http.server 8080
+
+# Or Node.js (if http-server is installed)
+npx http-server -p 8080
 ```
 
-4. Open the frontend:
-```bash
-# Open frontend/index.html in your browser
-# Or serve with a simple HTTP server:
-cd frontend && python -m http.server 8080
+3. Open in browser: `http://localhost:8080`
+
+## Customization
+
+### Update Contact Information
+Edit `index.html` to replace placeholder contact details:
+- WhatsApp number: Search for `254700000000` and replace with your actual number
+- Email: Search for `hello@kejaconciergerie.com` and replace
+
+### Update Colors
+Edit `style.css` CSS variables at the top of the file:
+```css
+:root {
+    --color-primary: #0F4C81;
+    --color-accent: #E85D04;
+    /* ... */
+}
 ```
 
-5. Access the app at `http://localhost:8080`
+### Add Real Images
+Replace the hero placeholder with actual property images by adding an `<img>` tag or background image.
 
-## Usage
+## Form Integration
 
-1. Add/edit menu items in the left panel
-2. Upload a food photo
-3. Click a stage button to run individual stages, or "Run Full Pipeline" for all stages
-4. View results in the right panel
+The revenue estimate form currently logs to console. To connect to a backend:
 
-## Project Structure
-
+1. Update the form submission handler in `app.js`
+2. Replace the simulated API call with your actual endpoint
+3. Example with fetch:
+```javascript
+const response = await fetch('/api/leads', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData)
+});
 ```
-.
-├── backend/
-│   ├── main.py                 # FastAPI app
-│   ├── models/
-│   │   └── schemas.py          # Pydantic models
-│   └── services/
-│       ├── vision_service.py   # OpenAI Vision integration
-│       └── photoroom_service.py # Photoroom API integration
-├── frontend/
-│   ├── index.html              # Main UI
-│   ├── style.css               # Styling
-│   └── app.js                  # Frontend logic
-├── requirements.txt            # Python dependencies
-└── .env                        # API keys (not committed)
-```
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## License
+
+All rights reserved. Keja Conciergerie 2025.
