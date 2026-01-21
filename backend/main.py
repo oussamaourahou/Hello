@@ -12,7 +12,8 @@ from backend.models.schemas import (
     PhotoMatchResult,
     PhotoQualityAssessment,
     PhotoroomEnhancementResult,
-    MenuExtractionResult
+    MenuExtractionResult,
+    ImageGenerationResult
 )
 from backend.services.vision_service import VisionService
 from backend.services.photoroom_service import (
@@ -21,6 +22,7 @@ from backend.services.photoroom_service import (
     PhotoroomAPIKeyError,
     PhotoroomAPIError
 )
+from backend.services.image_generation_service import ImageGenerationService
 from backend.services.auth_service import get_current_user
 
 # Load environment variables
@@ -45,6 +47,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # Initialize services
 vision_service = VisionService()
 photoroom_service = PhotoroomService()
+image_generation_service = ImageGenerationService()
 
 
 @app.get("/api")
@@ -326,6 +329,35 @@ async def download_image(filename: str, dish_name: str = "enhanced_dish"):
         filename=download_filename,
         headers={"Content-Disposition": f'attachment; filename="{download_filename}"'}
     )
+
+
+@app.post("/api/generate-image", response_model=ImageGenerationResult)
+async def generate_image(
+    dish_name: str = Form(...),
+    cuisine_style: str = Form(None),
+    user: Dict = Depends(get_current_user)
+):
+    """
+    Generate an AI food photo using DALL-E 2 (Protected)
+
+    Args:
+        dish_name: Name of the dish to generate
+        cuisine_style: Optional cuisine style (e.g., "Moroccan", "French", "Nordic")
+        user: Authenticated user (injected by Clerk)
+
+    Returns:
+        ImageGenerationResult with generated image URL and details
+    """
+    try:
+        result = await image_generation_service.generate_food_image(
+            dish_name=dish_name,
+            cuisine_style=cuisine_style
+        )
+
+        return ImageGenerationResult(**result)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating image: {str(e)}")
 
 
 # Mount static files for frontend (must be after all API routes)

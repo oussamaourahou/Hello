@@ -282,6 +282,52 @@ header p {
     font-size: 0.95rem;
 }
 
+.menu-item-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-generate {
+    background: linear-gradient(135deg, #ff6b9d 0%, #4ade80 100%);
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: all 0.2s;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-generate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 157, 0.4);
+}
+
+.btn-generate-lg {
+    width: 100%;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #ff6b9d 0%, #4ade80 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-generate-lg:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255, 107, 157, 0.5);
+}
+
 .btn-remove {
     background: #ff4757;
     color: white;

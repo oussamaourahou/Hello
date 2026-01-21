@@ -57,7 +57,12 @@ function addMenuItem() {
     itemDiv.className = 'menu-item';
     itemDiv.innerHTML = `
         <span>${itemName}</span>
-        <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+        <div class="menu-item-actions">
+            <button onclick="generateImageForDish('${itemName.replace(/'/g, "\\'")}')" class="btn-generate" title="Generate AI image">
+                🎨
+            </button>
+            <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+        </div>
     `;
 
     menuList.appendChild(itemDiv);
@@ -96,6 +101,109 @@ function handlePhotoSelect(event) {
         placeholder.style.display = 'none';
     };
     reader.readAsDataURL(file);
+}
+
+// Prompt user to generate image
+async function promptAndGenerateImage() {
+    const menuItems = getMenuItems();
+
+    if (menuItems.length === 0) {
+        const dishName = prompt('Enter the name of the dish to generate:');
+        if (dishName && dishName.trim()) {
+            await generateImageForDish(dishName.trim());
+        }
+    } else {
+        // Show menu items to choose from
+        const dishName = prompt(`Choose a dish or enter a custom name:\n\nMenu items:\n${menuItems.join('\n')}\n\nEnter dish name:`);
+        if (dishName && dishName.trim()) {
+            await generateImageForDish(dishName.trim());
+        }
+    }
+}
+
+// Generate AI Image for a Dish
+async function generateImageForDish(dishName) {
+    if (!dishName) {
+        alert('Dish name is required');
+        return;
+    }
+
+    showLoading();
+
+    try {
+        const token = await getAuthToken();
+        const formData = new FormData();
+        formData.append('dish_name', dishName);
+
+        const response = await fetch(`${API_BASE}/api/generate-image`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to generate image');
+        }
+
+        const result = await response.json();
+
+        // Display the generated image as if it was uploaded
+        const imagePath = result.image_url;
+        const filename = imagePath.split('/').pop();
+
+        // Set as uploaded photo
+        // Create a pseudo-file object
+        const blob = await fetch(`${API_BASE}/api/uploads/${filename}`).then(r => r.blob());
+        uploadedPhoto = new File([blob], filename, { type: blob.type });
+
+        // Show preview
+        const previewDiv = document.getElementById('photoPreview');
+        const previewImg = document.getElementById('previewImg');
+        const placeholder = document.querySelector('.upload-placeholder');
+
+        previewImg.src = `${API_BASE}/api/uploads/${filename}`;
+        previewDiv.style.display = 'block';
+        placeholder.style.display = 'none';
+
+        // Show success message in results
+        const html = `
+            <div class="result-card">
+                <h4>✨ Image Generated Successfully</h4>
+
+                <div class="result-item">
+                    <span class="result-label">Dish:</span>
+                    <span class="result-value"><strong>${dishName}</strong></span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-label">Model:</span>
+                    <span class="result-value">${result.generation_model}</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-label">Prompt Used:</span>
+                    <span class="result-value" style="font-size: 0.85rem; color: #666;">${result.prompt_used}</span>
+                </div>
+
+                <div class="generated-image-preview">
+                    <img src="${API_BASE}/api/uploads/${filename}" alt="${dishName}" style="max-width: 100%; border-radius: 8px; margin-top: 15px;">
+                </div>
+
+                <div class="result-item" style="margin-top: 15px;">
+                    <span class="result-value quality-ready">✓ Image ready! You can now run the pipeline on it.</span>
+                </div>
+            </div>
+        `;
+
+        displayResults(html);
+
+    } catch (error) {
+        hideLoading();
+        alert(`Error: ${error.message}`);
+    }
 }
 
 // Menu File Upload (Stage 1)
@@ -399,6 +507,17 @@ async function runStage3() {
                     <span class="result-label">Recommendation:</span>
                     <span class="result-value">${result.recommendation}</span>
                 </div>
+
+                ${result.overall_score < 75 ? `
+                <div class="result-item" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+                    <button onclick="promptAndGenerateImage()" class="btn-generate-lg">
+                        ✨ Generate Better AI Image
+                    </button>
+                    <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">
+                        Create a professional AI-generated photo for better results
+                    </p>
+                </div>
+                ` : ''}
             </div>
         `;
 

@@ -46,3 +46,11 @@ class MenuExtractionResult(BaseModel):
     menu_items: List[str]
     total_items: int
     extraction_notes: str  # Any notes about the extraction
+
+
+class ImageGenerationResult(BaseModel):
+    """Result of AI image generation"""
+    image_url: str
+    prompt_used: str
+    dish_name: str
+    generation_model: str
