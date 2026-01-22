@@ -22,19 +22,20 @@ class ImageGenerationService:
             dict with image_url and prompt_used
         """
 
-        # Build realistic prompt for food delivery app photography
-        # Simple, clean, and appetizing - like real Glovo/UberEats photos
-        cuisine_context = f"{cuisine_style} " if cuisine_style else "Moroccan "
+        # Follow official UberEats/Glovo photo guidelines
+        # Based on merchant photo requirements for delivery apps
+        cuisine_context = f"{cuisine_style} " if cuisine_style else ""
 
-        prompt = f"""A simple, appetizing photo of {cuisine_context}{dish_name} on a plain white round plate.
-Shot directly from above (top-down view) on a clean white surface.
-Bright, even lighting with no shadows.
-The food looks fresh, colorful, and realistic - exactly what a customer would receive when ordering delivery.
-Simple presentation with the dish taking up most of the frame.
-No fancy garnishes, no restaurant setting, no decorative elements.
-Just the actual food, clearly visible and appetizing.
-The photo looks like it was taken with a smartphone for a food delivery app menu - real, honest, and making you want to order.
-Realistic portions and everyday presentation, not styled or artistic."""
+        prompt = f"""A straightforward menu photo of {dish_name} on a plain white plate.
+Top-down view, centered in frame.
+Natural window light, no dramatic shadows or highlights.
+Clean white plate, neutral light gray background.
+The food exactly as it would be delivered - realistic portions.
+No garnishes, no herbs, no decorative elements, no props.
+No hands, no utensils, no side dishes visible.
+No patterns on the plate, no textured surfaces.
+Simple, honest food photo for a delivery app menu.
+Not artistic, not styled - just clear and appetizing."""
 
         try:
             # Generate image with DALL-E 3 (premium quality: $0.04 per image)
