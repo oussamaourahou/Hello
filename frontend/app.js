@@ -70,7 +70,7 @@ function addMenuItem() {
 }
 
 function removeMenuItem(button) {
-    button.parentElement.remove();
+    button.parentElement.parentElement.remove();
 }
 
 function getMenuItems() {
@@ -272,7 +272,12 @@ async function extractMenu() {
             itemDiv.className = 'menu-item';
             itemDiv.innerHTML = `
                 <span>${item}</span>
-                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+                <div class="menu-item-actions">
+                    <button onclick="generateImageForDish('${item.replace(/'/g, "\\'")}')" class="btn-generate" title="Generate AI image">
+                        🎨
+                    </button>
+                    <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+                </div>
             `;
             menuList.appendChild(itemDiv);
         });
