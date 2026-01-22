@@ -11,10 +11,12 @@ class DatabaseService:
         supabase_url = os.getenv("SUPABASE_URL")
         supabase_key = os.getenv("SUPABASE_SERVICE_KEY")
 
-        if not supabase_url or not supabase_key:
-            raise ValueError(
-                "Missing Supabase credentials. Please set SUPABASE_URL and SUPABASE_SERVICE_KEY in .env"
-            )
+        # Allow optional Supabase - won't crash if not configured
+        if not supabase_url or not supabase_key or supabase_url == "your_supabase_project_url_here":
+            print("⚠️  Supabase not configured. Database endpoints will not work.")
+            self.client = None
+            self.storage_bucket = "palete-photos"
+            return
 
         self.client: Client = create_client(supabase_url, supabase_key)
         self.storage_bucket = "palete-photos"
@@ -28,6 +30,9 @@ class DatabaseService:
         cuisine_type: Optional[str] = None
     ) -> Dict[str, Any]:
         """Create a new restaurant"""
+        if not self.client:
+            raise Exception("Supabase not configured. Please set SUPABASE_URL and SUPABASE_SERVICE_KEY in .env")
+
         data = {
             "owner_user_id": owner_user_id,
             "name": name,

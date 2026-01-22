@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Workflow - Palete Studio</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- Clerk Authentication -->
+    <script
+        async
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_test_dmFsdWVkLWVzY2FyZ290LTY0LmNsZXJrLmFjY291bnRzLmRldiQ"
+        src="https://valued-escargot-64.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+        type="text/javascript"
+    ></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, #ff6b9d 0%, #4ade80 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-circle {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #ddd;
+            z-index: 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            color: #999;
+        }
+
+        .step.active .step-circle {
+            border-color: #ff6b9d;
+            background: linear-gradient(135deg, #ff6b9d 0%, #4ade80 100%);
+            color: white;
+        }
+
+        .step.completed .step-circle {
+            border-color: #4ade80;
+            background: #4ade80;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .step.active .step-label {
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* Forms */
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"]:focus,
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #ff6b9d;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b9d 0%, #4ade80 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Upload areas */
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #ff6b9d;
+            background: #fafafa;
+        }
+
+        .upload-area.has-file {
+            border-color: #4ade80;
+            background: #f0fdf4;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #ff6b9d;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Results */
+        .result-list {
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .result-item strong {
+            color: #333;
+        }
+
+        /* Hidden by default */
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Match items */
+        .match-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .match-item.low-confidence {
+            border-left: 4px solid #ff6b9d;
+        }
+
+        .match-item.medium-confidence {
+            border-left: 4px solid #fbbf24;
+        }
+
+        .match-item.high-confidence {
+            border-left: 4px solid #4ade80;
+        }
+
+        .confidence-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .confidence-low {
+            background: #ffe4e6;
+            color: #ff6b9d;
+        }
+
+        .confidence-medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .confidence-high {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="logo-circle"></div>
+            <h1>Palete Studio - Restaurant Workflow</h1>
+        </div>
+        <div id="user-button-container"></div>
+    </header>
+
+    <div class="container">
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step active" id="step-0">
+                <div class="step-circle">1</div>
+                <div class="step-label">New Restaurant</div>
+            </div>
+            <div class="step" id="step-1">
+                <div class="step-circle">2</div>
+                <div class="step-label">Ingestion</div>
+            </div>
+            <div class="step" id="step-2">
+                <div class="step-circle">3</div>
+                <div class="step-label">Matching</div>
+            </div>
+            <div class="step" id="step-3">
+                <div class="step-circle">4</div>
+                <div class="step-label">Quality Check</div>
+            </div>
+            <div class="step" id="step-4">
+                <div class="step-circle">5</div>
+                <div class="step-label">Gap Filling</div>
+            </div>
+            <div class="step" id="step-5">
+                <div class="step-circle">6</div>
+                <div class="step-label">Export</div>
+            </div>
+        </div>
+
+        <!-- Screen 0: New Restaurant -->
+        <div class="screen active" id="screen-0">
+            <div class="card">
+                <h2>Create New Restaurant</h2>
+                <p>Let's start by creating a new restaurant profile</p>
+
+                <label>Restaurant Name *</label>
+                <input type="text" id="restaurantName" placeholder="e.g., Le Riad Casablanca">
+
+                <label>Cuisine Type (optional)</label>
+                <input type="text" id="cuisineType" placeholder="e.g., Moroccan, French, Mediterranean">
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="createRestaurant()">Create Restaurant & Continue</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 1: Ingestion & Extraction -->
+        <div class="screen" id="screen-1">
+            <div class="card">
+                <h2>Ingestion & Extraction</h2>
+                <p>Upload your menu and food photos</p>
+
+                <label>Upload Menu (PDF or Image) *</label>
+                <div class="upload-area" id="menuUploadArea" onclick="document.getElementById('menuFileInput').click()">
+                    <div>📄 Click to upload menu</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 5px;">PDF, JPG, PNG supported</div>
+                </div>
+                <input type="file" id="menuFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleMenuUpload(event)">
+
+                <label>Upload Food Photos *</label>
+                <div class="upload-area" id="photosUploadArea" onclick="document.getElementById('photosFileInput').click()">
+                    <div>📷 Click to upload photos</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 5px;">Select multiple images</div>
+                </div>
+                <input type="file" id="photosFileInput" accept=".jpg,.jpeg,.png" multiple style="display: none;" onchange="handlePhotosUpload(event)">
+
+                <div id="uploadResults"></div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(0)">Back</button>
+                    <button class="btn btn-primary" id="extractBtn" onclick="extractMenu()" disabled>Extract Menu Items</button>
+                </div>
+            </div>
+
+            <div class="loading" id="loading-1">
+                <div class="spinner"></div>
+                <p>Processing your menu and photos...</p>
+            </div>
+        </div>
+
+        <!-- Screen 2: Photo-to-Item Matching -->
+        <div class="screen" id="screen-2">
+            <div class="card">
+                <h2>Photo-to-Item Matching</h2>
+                <p>Review and adjust photo matches for each menu item</p>
+
+                <div id="matchingResults"></div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">Back</button>
+                    <button class="btn btn-primary" onclick="proceedToQuality()">Continue to Quality Check</button>
+                </div>
+            </div>
+
+            <div class="loading" id="loading-2">
+                <div class="spinner"></div>
+                <p>Matching photos to menu items...</p>
+            </div>
+        </div>
+
+        <!-- Screen 3: Quality Assessment -->
+        <div class="screen" id="screen-3">
+            <div class="card">
+                <h2>Quality Assessment & Enhancement</h2>
+                <p>All photos will be enhanced and quality checked</p>
+
+                <div id="qualityResults"></div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">Back</button>
+                    <button class="btn btn-primary" id="enhanceBtn" onclick="enhanceAllPhotos()">Enhance All Photos</button>
+                </div>
+            </div>
+
+            <div class="loading" id="loading-3">
+                <div class="spinner"></div>
+                <p>Enhancing photos with Photoroom...</p>
+            </div>
+        </div>
+
+        <!-- Screen 4: Gap Filling -->
+        <div class="screen" id="screen-4">
+            <div class="card">
+                <h2>Gap Filling</h2>
+                <p>Generate AI photos for missing or low-quality items</p>
+
+                <div id="gapResults"></div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(3)">Back</button>
+                    <button class="btn btn-primary" onclick="goToStep(5)">Continue to Export</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 5: Export -->
+        <div class="screen" id="screen-5">
+            <div class="card">
+                <h2>Export</h2>
+                <p>Your restaurant is ready! Export your data.</p>
+
+                <div id="exportResults"></div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(4)">Back</button>
+                    <button class="btn btn-primary" onclick="exportData()">Export Restaurant Data</button>
+                    <button class="btn btn-secondary" onclick="startOver()">Start New Restaurant</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="workflow.js"></script>
+</body>
+</html>
