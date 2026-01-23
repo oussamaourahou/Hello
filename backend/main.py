@@ -24,7 +24,14 @@ from backend.services.photoroom_service import (
 )
 from backend.services.image_generation_service import ImageGenerationService
 from backend.services.auth_service import get_current_user
-from backend.services.database_service import get_database_service
+
+# Optional: Database service (requires Supabase)
+try:
+    from backend.services.database_service import get_database_service
+    SUPABASE_AVAILABLE = True
+except ImportError:
+    SUPABASE_AVAILABLE = False
+    print("⚠️  Supabase not installed. Database endpoints will not work.")
 
 # Load environment variables
 load_dotenv()
@@ -49,7 +56,12 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 vision_service = VisionService()
 photoroom_service = PhotoroomService()
 image_generation_service = ImageGenerationService()
-db_service = get_database_service()
+
+# Initialize database service if Supabase is available
+if SUPABASE_AVAILABLE:
+    db_service = get_database_service()
+else:
+    db_service = None
 
 
 @app.get("/api")
@@ -364,6 +376,14 @@ async def generate_image(
 
 # ==================== NEW: 5-SCREEN FLOW ENDPOINTS ====================
 
+def check_database_available():
+    """Check if database service is available"""
+    if not SUPABASE_AVAILABLE or db_service is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Database not configured. Please set up Supabase to use restaurant workflow features."
+        )
+
 @app.post("/api/restaurants")
 async def create_restaurant(
     name: str = Form(...),
@@ -381,6 +401,7 @@ async def create_restaurant(
     Returns:
         Created restaurant data
     """
+    check_database_available()
     try:
         restaurant = await db_service.create_restaurant(
             owner_user_id=user["sub"],
@@ -403,6 +424,7 @@ async def get_restaurants(user: Dict = Depends(get_current_user)):
     Returns:
         List of user's restaurants
     """
+    check_database_available()
     try:
         restaurants = await db_service.get_user_restaurants(user["sub"])
         return restaurants
@@ -425,6 +447,7 @@ async def get_restaurant(
     Returns:
         Restaurant data
     """
+    check_database_available()
     try:
         restaurant = await db_service.get_restaurant(restaurant_id)
         if not restaurant:
@@ -458,6 +481,7 @@ async def upload_restaurant_menu(
     Returns:
         Extracted menu items
     """
+    check_database_available()
     try:
         # Verify restaurant ownership
         restaurant = await db_service.get_restaurant(restaurant_id)
@@ -521,6 +545,7 @@ async def upload_restaurant_photo(
     Returns:
         Uploaded photo data
     """
+    check_database_available()
     try:
         # Verify restaurant ownership
         restaurant = await db_service.get_restaurant(restaurant_id)
@@ -574,6 +599,7 @@ async def get_restaurant_menu_items(
     Returns:
         List of menu items
     """
+    check_database_available()
     try:
         # Verify restaurant ownership
         restaurant = await db_service.get_restaurant(restaurant_id)
@@ -604,6 +630,7 @@ async def get_restaurant_photos(
     Returns:
         List of photos
     """
+    check_database_available()
     try:
         # Verify restaurant ownership
         restaurant = await db_service.get_restaurant(restaurant_id)
@@ -634,6 +661,7 @@ async def match_all_photos(
     Returns:
         Matching results for all photos
     """
+    check_database_available()
     try:
         # Verify restaurant ownership
         restaurant = await db_service.get_restaurant(restaurant_id)
@@ -715,6 +743,7 @@ async def enhance_all_photos(
     Returns:
         Enhancement results
     """
+    check_database_available()
     try:
         # Verify restaurant ownership
         restaurant = await db_service.get_restaurant(restaurant_id)
@@ -813,6 +842,7 @@ async def export_restaurant_data(
     Returns:
         Complete restaurant data with menu items and photos
     """
+    check_database_available()
     try:
         # Verify restaurant ownership
         restaurant = await db_service.get_restaurant(restaurant_id)
