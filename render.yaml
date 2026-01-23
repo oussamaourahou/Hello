@@ -1,13 +1,18 @@
 services:
   - type: web
-    name: glovo-menu-ai
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    name: palete-studio
+    env: docker
+    dockerfilePath: ./Dockerfile
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
       - key: OPENAI_API_KEY
         sync: false
       - key: PHOTOROOM_API_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_URL
+        value: your_supabase_project_url_here
+      - key: SUPABASE_SERVICE_KEY
         sync: false
