@@ -1,110 +1,103 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glovo Menu AI Pipeline</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mot de Passe Duel</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🍽️ Glovo Menu AI Pipeline</h1>
-            <p>AI-powered menu photo processing</p>
-        </header>
-
-        <div class="main-content">
-            <!-- Left Panel: Input -->
-            <div class="panel input-panel">
-                <h2>Input</h2>
-
-                <!-- Menu Items Editor -->
-                <div class="section">
-                    <h3>Menu Items</h3>
-                    <div class="menu-items-editor">
-                        <div id="menuItemsList" class="menu-items-list">
-                            <!-- Default items -->
-                            <div class="menu-item">
-                                <span>Breakfast Beldi</span>
-                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
-                            </div>
-                            <div class="menu-item">
-                                <span>Breakfast Norvégien</span>
-                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
-                            </div>
-                            <div class="menu-item">
-                                <span>Breakfast Gourmande</span>
-                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
-                            </div>
-                            <div class="menu-item">
-                                <span>Breakfast British</span>
-                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
-                            </div>
-                            <div class="menu-item">
-                                <span>Breakfast Espagnol</span>
-                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
-                            </div>
-                            <div class="menu-item">
-                                <span>Breakfast Protéiné</span>
-                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
-                            </div>
-                        </div>
-                        <div class="add-item-form">
-                            <input type="text" id="newItemInput" placeholder="Add new item..." />
-                            <button onclick="addMenuItem()" class="btn-add">+ Add</button>
-                        </div>
-                    </div>
+    <div class="game-container">
+        <!-- Start Screen -->
+        <div id="startScreen" class="screen active">
+            <h1>Mot de Passe Duel</h1>
+            <p class="subtitle">Donnez des indices pour faire deviner le mot!</p>
+            <div class="game-info">
+                <div class="info-item">
+                    <span class="info-label">Niveaux:</span>
+                    <span class="info-value">10</span>
                 </div>
-
-                <!-- Photo Upload -->
-                <div class="section">
-                    <h3>Upload Photo</h3>
-                    <div class="upload-area" id="uploadArea">
-                        <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelect(event)" />
-                        <div class="upload-placeholder">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                            </svg>
-                            <p>Click or drag to upload photo</p>
-                        </div>
-                        <div id="photoPreview" class="photo-preview" style="display: none;">
-                            <img id="previewImg" src="" alt="Preview" />
-                        </div>
-                    </div>
+                <div class="info-item">
+                    <span class="info-label">Temps par niveau:</span>
+                    <span class="info-value">60 secondes</span>
                 </div>
+            </div>
+            <button id="startBtn" class="btn-primary">Commencer le Jeu</button>
+        </div>
 
-                <!-- Action Buttons -->
-                <div class="section action-buttons">
-                    <button onclick="runStage2()" class="btn-primary" id="stage2Btn">
-                        Stage 2: Match Photo
-                    </button>
-                    <button onclick="runStage3()" class="btn-primary" id="stage3Btn">
-                        Stage 3: Assess Quality
-                    </button>
-                    <button onclick="runStage4()" class="btn-primary" id="stage4Btn">
-                        Stage 4: Enhance Photo
-                    </button>
-                    <button onclick="runFullPipeline()" class="btn-full" id="fullPipelineBtn">
-                        Run Full Pipeline
-                    </button>
+        <!-- Game Screen -->
+        <div id="gameScreen" class="screen">
+            <div class="game-header">
+                <div class="level-display">
+                    <span>Niveau</span>
+                    <span id="currentLevel" class="level-number">1</span>
+                    <span>/</span>
+                    <span class="level-number">10</span>
+                </div>
+                <div class="timer" id="timer">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span id="timeLeft">60</span>s
                 </div>
             </div>
 
-            <!-- Right Panel: Results -->
-            <div class="panel results-panel">
-                <h2>Results</h2>
+            <div class="score-display">
+                <span>Score:</span>
+                <span id="score">0</span>
+            </div>
 
-                <div id="loadingIndicator" class="loading" style="display: none;">
-                    <div class="spinner"></div>
-                    <p>Processing...</p>
+            <div class="word-display">
+                <div class="first-letter-label">Première lettre:</div>
+                <div id="firstLetter" class="first-letter">A</div>
+            </div>
+
+            <div class="word-card">
+                <div class="word-to-guess" id="wordToGuess">AVION</div>
+                <div class="word-hint">Donnez un indice pour ce mot!</div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="skipBtn" class="btn-secondary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                        <line x1="19" y1="5" x2="19" y2="19"></line>
+                    </svg>
+                    Passer
+                </button>
+                <button id="gotItBtn" class="btn-success">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Trouvé!
+                </button>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="endScreen" class="screen">
+            <h2 id="endTitle">Niveau Terminé!</h2>
+            <div class="final-score">
+                <div class="score-label">Score Final</div>
+                <div id="finalScore" class="score-value">0</div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="correctAnswers">0</div>
+                    <div class="stat-label">Trouvés</div>
                 </div>
-
-                <div id="resultsContent" class="results-content">
-                    <p class="empty-state">Upload a photo and run a stage to see results</p>
+                <div class="stat-item">
+                    <div class="stat-value" id="skippedAnswers">0</div>
+                    <div class="stat-label">Passés</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalWords">0</div>
+                    <div class="stat-label">Total</div>
                 </div>
             </div>
+            <button id="nextLevelBtn" class="btn-primary">Niveau Suivant</button>
+            <button id="restartBtn" class="btn-secondary">Recommencer</button>
         </div>
     </div>
 
