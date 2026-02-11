@@ -24,3 +24,6 @@ email-validator==2.1.0
 
 # Database
 aiosqlite==0.19.0
+
+# Production Server (optional, uvicorn is sufficient)
+gunicorn==21.2.0

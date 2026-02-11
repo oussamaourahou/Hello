@@ -1,6 +1,10 @@
 // Email Archive Explorer JavaScript
 
-const API_BASE = 'http://localhost:8000/api';
+// API Configuration - automatically detects production or local environment
+const API_BASE = window.location.hostname === 'localhost'
+    ? 'http://localhost:8000/api'
+    : (window.API_URL || 'https://email-archive-api.onrender.com/api');
+
 let currentPage = 0;
 let searchResults = null;
 

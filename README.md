@@ -165,3 +165,124 @@ The email archive system is designed to handle very large mbox files efficiently
 - **Search Speed**: <100ms for most queries
 - **Memory Usage**: <500MB during indexing, <100MB during normal operation
 - **Database Size**: Approximately 40-50% of original mbox file size
+
+## Deployment on Render
+
+Deploy the application to Render with just a few clicks:
+
+### Quick Deploy
+
+1. **Push to GitHub**:
+   ```bash
+   git push origin main
+   ```
+
+2. **Connect to Render**:
+   - Go to [render.com](https://render.com) and sign up/login
+   - Click "New +" → "Blueprint"
+   - Connect your GitHub repository
+   - Render will automatically detect the `render.yaml` file
+
+3. **Configure Environment Variables** (in Render Dashboard):
+   - `OPENAI_API_KEY` - Your OpenAI API key (optional)
+   - `PHOTOROOM_API_KEY` - Your Photoroom API key (optional)
+   - `DB_PATH` - Set to `/opt/render/project/src/data/email_archive.db`
+   - `CORS_ORIGINS` - Set to your frontend URL or `*` for development
+
+4. **Deploy**:
+   - Click "Apply" to deploy both services
+   - Wait for deployment to complete (~5 minutes)
+
+### Services Created
+
+The `render.yaml` automatically creates:
+
+1. **Backend API Service**:
+   - Python web service running FastAPI
+   - 10GB persistent disk for email database
+   - Automatic HTTPS
+   - Environment variables for configuration
+
+2. **Frontend Static Service**:
+   - Static site hosting for HTML/CSS/JS
+   - Automatic HTTPS
+   - Connected to backend API
+
+### Accessing Your Deployed App
+
+After deployment:
+- **Frontend URL**: `https://email-archive-frontend.onrender.com`
+- **Backend API**: `https://email-archive-api.onrender.com`
+
+Update the `API_BASE` in `frontend/email-archive.js` to point to your backend URL.
+
+### Uploading Your mbox File
+
+Since your mbox file is 25GB, you have several options:
+
+1. **Option 1: Upload via SCP/SFTP** (Recommended for large files):
+   - Get SSH access to your Render service
+   - Use `scp` to upload the mbox file to `/opt/render/project/src/data/`
+
+2. **Option 2: Cloud Storage Integration**:
+   - Upload your mbox file to AWS S3, Google Cloud Storage, or Dropbox
+   - Modify the indexing endpoint to download from cloud storage
+   - Add a download step before indexing
+
+3. **Option 3: Use Render Disk**:
+   - The deployed service includes a 10GB persistent disk
+   - For files larger than 10GB, upgrade the disk size in Render settings
+   - Can go up to 512GB
+
+### Important Notes
+
+- **Persistent Storage**: The database is stored on Render's persistent disk, so your indexed data won't be lost on redeploys
+- **Cold Starts**: Free tier services may sleep after 15 minutes of inactivity
+- **Upgrade for Production**: For production use with large files, consider upgrading to a paid plan for:
+  - More RAM and CPU
+  - Larger persistent disk
+  - No cold starts
+  - Better performance
+
+### Manual Deployment (Alternative)
+
+If you prefer manual deployment:
+
+1. **Deploy Backend**:
+   ```bash
+   # On Render, create a new Web Service
+   # Build Command: pip install -r requirements.txt
+   # Start Command: uvicorn backend.main:app --host 0.0.0.0 --port $PORT --workers 2
+   ```
+
+2. **Deploy Frontend**:
+   ```bash
+   # On Render, create a Static Site
+   # Publish Directory: frontend
+   ```
+
+3. **Add Persistent Disk**:
+   - Go to backend service settings
+   - Add a disk (10GB minimum, 512GB maximum)
+   - Mount at `/opt/render/project/src/data`
+
+### Monitoring
+
+Monitor your deployment:
+- Check logs in Render dashboard
+- Monitor disk usage for the database
+- Track API performance and response times
+- Set up alerts for errors
+
+### Cost Estimation
+
+- **Free Tier**: $0/month (limited resources, cold starts)
+- **Starter Tier**: ~$7/month per service (~$14 total)
+- **Standard Tier**: ~$25/month per service (~$50 total)
+- **Additional Storage**: ~$0.25/GB/month
+
+For a 25GB mbox file, budget for:
+- ~15GB persistent disk (for database + mbox) = ~$3.75/month
+- Backend service (Starter or better) = $7-25/month
+- Frontend service (Free or Starter) = $0-7/month
+- **Total**: ~$11-36/month

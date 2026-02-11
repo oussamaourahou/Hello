@@ -18,17 +18,21 @@ from backend.services.photoroom_service import PhotoroomService
 from backend.services.email_indexer import EmailIndexer
 from backend.services.email_query import EmailQueryService
 from backend.services.email_analytics import EmailAnalyticsService
+from backend.config import DB_PATH, CORS_ORIGINS, ensure_data_dir
 
 # Load environment variables
 load_dotenv()
 
+# Ensure data directory exists
+ensure_data_dir()
+
 # Initialize FastAPI app
-app = FastAPI(title="Glovo Menu AI Pipeline", version="1.0.0")
+app = FastAPI(title="Email Archive Explorer", version="2.0.0")
 
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,10 +46,10 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 vision_service = VisionService()
 photoroom_service = PhotoroomService()
 
-# Email archive services
-email_indexer = EmailIndexer()
-email_query = EmailQueryService()
-email_analytics = EmailAnalyticsService()
+# Email archive services (use configured DB path)
+email_indexer = EmailIndexer(db_path=DB_PATH)
+email_query = EmailQueryService(db_path=DB_PATH)
+email_analytics = EmailAnalyticsService(db_path=DB_PATH)
 
 # Track indexing status
 indexing_status = {"status": "not_started", "progress": None}
@@ -70,13 +74,13 @@ async def shutdown_event():
 @app.get("/")
 async def root():
     return {
-        "message": "Glovo Menu AI Pipeline",
-        "version": "1.0.0",
-        "stages": {
-            "stage_2": "Photo-to-Item Matching",
-            "stage_3": "Quality Assessment",
-            "stage_4": "Photo Enhancement (Photoroom)"
-        }
+        "message": "Email Archive Explorer",
+        "version": "2.0.0",
+        "features": {
+            "email_archive": "Query and analyze email archives (mbox format)",
+            "menu_ai": "Photo-to-menu matching pipeline"
+        },
+        "db_path": DB_PATH
     }
 
 
