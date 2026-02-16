@@ -9,105 +9,421 @@
 <body>
     <div class="container">
         <header>
-            <h1>🍽️ Glovo Menu AI Pipeline</h1>
+            <h1>Glovo Menu AI Pipeline</h1>
             <p>AI-powered menu photo processing</p>
         </header>
 
-        <div class="main-content">
-            <!-- Left Panel: Input -->
-            <div class="panel input-panel">
-                <h2>Input</h2>
+        <!-- Top-level Navigation Tabs -->
+        <nav class="top-nav">
+            <button class="top-nav-tab active" onclick="switchTopTab('pipeline')">Pipeline</button>
+            <button class="top-nav-tab" onclick="switchTopTab('sales-dashboard')">Sales Dashboard</button>
+        </nav>
 
-                <!-- Menu Items Editor -->
-                <div class="section">
-                    <h3>Menu Items</h3>
-                    <div class="menu-items-editor">
-                        <div id="menuItemsList" class="menu-items-list">
-                            <!-- Default items -->
-                            <div class="menu-item">
-                                <span>Breakfast Beldi</span>
-                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+        <!-- Pipeline View (existing) -->
+        <div id="pipelineView" class="top-tab-content active">
+            <div class="main-content">
+                <!-- Left Panel: Input -->
+                <div class="panel input-panel">
+                    <h2>Input</h2>
+
+                    <!-- Menu Items Editor -->
+                    <div class="section">
+                        <h3>Menu Items</h3>
+                        <div class="menu-items-editor">
+                            <div id="menuItemsList" class="menu-items-list">
+                                <!-- Default items -->
+                                <div class="menu-item">
+                                    <span>Breakfast Beldi</span>
+                                    <button onclick="removeMenuItem(this)" class="btn-remove">&times;</button>
+                                </div>
+                                <div class="menu-item">
+                                    <span>Breakfast Norv&eacute;gien</span>
+                                    <button onclick="removeMenuItem(this)" class="btn-remove">&times;</button>
+                                </div>
+                                <div class="menu-item">
+                                    <span>Breakfast Gourmande</span>
+                                    <button onclick="removeMenuItem(this)" class="btn-remove">&times;</button>
+                                </div>
+                                <div class="menu-item">
+                                    <span>Breakfast British</span>
+                                    <button onclick="removeMenuItem(this)" class="btn-remove">&times;</button>
+                                </div>
+                                <div class="menu-item">
+                                    <span>Breakfast Espagnol</span>
+                                    <button onclick="removeMenuItem(this)" class="btn-remove">&times;</button>
+                                </div>
+                                <div class="menu-item">
+                                    <span>Breakfast Prot&eacute;in&eacute;</span>
+                                    <button onclick="removeMenuItem(this)" class="btn-remove">&times;</button>
+                                </div>
                             </div>
-                            <div class="menu-item">
-                                <span>Breakfast Norvégien</span>
-                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
-                            </div>
-                            <div class="menu-item">
-                                <span>Breakfast Gourmande</span>
-                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
-                            </div>
-                            <div class="menu-item">
-                                <span>Breakfast British</span>
-                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
-                            </div>
-                            <div class="menu-item">
-                                <span>Breakfast Espagnol</span>
-                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
-                            </div>
-                            <div class="menu-item">
-                                <span>Breakfast Protéiné</span>
-                                <button onclick="removeMenuItem(this)" class="btn-remove">×</button>
+                            <div class="add-item-form">
+                                <input type="text" id="newItemInput" placeholder="Add new item..." />
+                                <button onclick="addMenuItem()" class="btn-add">+ Add</button>
                             </div>
                         </div>
-                        <div class="add-item-form">
-                            <input type="text" id="newItemInput" placeholder="Add new item..." />
-                            <button onclick="addMenuItem()" class="btn-add">+ Add</button>
+                    </div>
+
+                    <!-- Photo Upload -->
+                    <div class="section">
+                        <h3>Upload Photo</h3>
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelect(event)" />
+                            <div class="upload-placeholder">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <p>Click or drag to upload photo</p>
+                            </div>
+                            <div id="photoPreview" class="photo-preview" style="display: none;">
+                                <img id="previewImg" src="" alt="Preview" />
+                            </div>
                         </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="section action-buttons">
+                        <button onclick="runStage2()" class="btn-primary" id="stage2Btn">
+                            Stage 2: Match Photo
+                        </button>
+                        <button onclick="runStage3()" class="btn-primary" id="stage3Btn">
+                            Stage 3: Assess Quality
+                        </button>
+                        <button onclick="runStage4()" class="btn-primary" id="stage4Btn">
+                            Stage 4: Enhance Photo
+                        </button>
+                        <button onclick="runFullPipeline()" class="btn-full" id="fullPipelineBtn">
+                            Run Full Pipeline
+                        </button>
                     </div>
                 </div>
 
-                <!-- Photo Upload -->
-                <div class="section">
-                    <h3>Upload Photo</h3>
-                    <div class="upload-area" id="uploadArea">
-                        <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelect(event)" />
-                        <div class="upload-placeholder">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                            </svg>
-                            <p>Click or drag to upload photo</p>
-                        </div>
-                        <div id="photoPreview" class="photo-preview" style="display: none;">
-                            <img id="previewImg" src="" alt="Preview" />
-                        </div>
+                <!-- Right Panel: Results -->
+                <div class="panel results-panel">
+                    <h2>Results</h2>
+
+                    <div id="loadingIndicator" class="loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Processing...</p>
+                    </div>
+
+                    <div id="resultsContent" class="results-content">
+                        <p class="empty-state">Upload a photo and run a stage to see results</p>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Action Buttons -->
-                <div class="section action-buttons">
-                    <button onclick="runStage2()" class="btn-primary" id="stage2Btn">
-                        Stage 2: Match Photo
-                    </button>
-                    <button onclick="runStage3()" class="btn-primary" id="stage3Btn">
-                        Stage 3: Assess Quality
-                    </button>
-                    <button onclick="runStage4()" class="btn-primary" id="stage4Btn">
-                        Stage 4: Enhance Photo
-                    </button>
-                    <button onclick="runFullPipeline()" class="btn-full" id="fullPipelineBtn">
-                        Run Full Pipeline
-                    </button>
+        <!-- Sales Dashboard View -->
+        <div id="salesDashboardView" class="top-tab-content">
+            <!-- Dashboard Filters -->
+            <div class="dashboard-filters">
+                <div class="filter-group">
+                    <label>Date Range</label>
+                    <select id="dateRangeFilter" onchange="applyDashboardFilters()">
+                        <option value="today">Today</option>
+                        <option value="7days" selected>Last 7 days</option>
+                        <option value="30days">Last 30 days</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Use Case</label>
+                    <select id="useCaseFilter" onchange="applyDashboardFilters()">
+                        <option value="all">All Use Cases</option>
+                        <option value="real-estate">Real Estate</option>
+                        <option value="automotive">Automotive</option>
+                        <option value="insurance">Insurance</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Channel Source</label>
+                    <select id="channelFilter" onchange="applyDashboardFilters()">
+                        <option value="all">All Channels</option>
+                        <option value="inbound">Inbound</option>
+                        <option value="broadcast">Broadcast</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- Right Panel: Results -->
-            <div class="panel results-panel">
-                <h2>Results</h2>
+            <!-- Dashboard Sub-tabs -->
+            <nav class="dashboard-tabs">
+                <button class="dashboard-tab active" onclick="switchDashboardTab('cockpit')">Cockpit</button>
+                <button class="dashboard-tab" onclick="switchDashboardTab('outbound')">Outbound</button>
+                <button class="dashboard-tab" onclick="switchDashboardTab('inbound')">Inbound</button>
+                <button class="dashboard-tab" onclick="switchDashboardTab('sla')">SLA &amp; Unanswered</button>
+            </nav>
 
-                <div id="loadingIndicator" class="loading" style="display: none;">
-                    <div class="spinner"></div>
-                    <p>Processing...</p>
+            <!-- Cockpit Tab -->
+            <div id="cockpitTab" class="dashboard-tab-content active">
+                <div class="kpi-grid">
+                    <!-- Outbound KPIs -->
+                    <div class="kpi-card">
+                        <div class="kpi-label">Total Campaigns</div>
+                        <div class="kpi-value" id="kpiTotalCampaigns">--</div>
+                        <div class="kpi-subtitle">sent in period</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Delivery Rate</div>
+                        <div class="kpi-value" id="kpiDeliveryRate">--</div>
+                        <div class="kpi-subtitle">global outbound</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Read Rate</div>
+                        <div class="kpi-value" id="kpiReadRate">--</div>
+                        <div class="kpi-subtitle">global outbound</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Reply Rate</div>
+                        <div class="kpi-value" id="kpiReplyRate">--</div>
+                        <div class="kpi-subtitle">global outbound</div>
+                    </div>
+
+                    <!-- Inbound KPIs -->
+                    <div class="kpi-card">
+                        <div class="kpi-label">Inbound Conversations</div>
+                        <div class="kpi-value" id="kpiTotalInbound">--</div>
+                        <div class="kpi-subtitle">total in period</div>
+                    </div>
+                    <div class="kpi-card kpi-red">
+                        <div class="kpi-label">Out of Target</div>
+                        <div class="kpi-value" id="kpiOutOfTarget">--</div>
+                        <div class="kpi-subtitle">inbound triage</div>
+                    </div>
+                    <div class="kpi-card kpi-orange">
+                        <div class="kpi-label">Interested</div>
+                        <div class="kpi-value" id="kpiInterested">--</div>
+                        <div class="kpi-subtitle">inbound triage</div>
+                    </div>
+                    <div class="kpi-card kpi-green">
+                        <div class="kpi-label">Highly Interested</div>
+                        <div class="kpi-value" id="kpiHighlyInterested">--</div>
+                        <div class="kpi-subtitle">inbound triage</div>
+                    </div>
+
+                    <!-- Messages KPIs -->
+                    <div class="kpi-card kpi-wide">
+                        <div class="kpi-label">Messages Received</div>
+                        <div class="kpi-value" id="kpiTotalMessages">--</div>
+                        <div class="kpi-message-breakdown" id="kpiMessageBreakdown"></div>
+                    </div>
+
+                    <!-- SLA KPIs -->
+                    <div class="kpi-card">
+                        <div class="kpi-label">AI First Response</div>
+                        <div class="kpi-value" id="kpiAiSlaMedian">--</div>
+                        <div class="kpi-subtitle" id="kpiAiSlaPercent">--</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Human Response</div>
+                        <div class="kpi-value" id="kpiHumanSlaMedian">--</div>
+                        <div class="kpi-subtitle" id="kpiHumanSlaPercent">--</div>
+                    </div>
+
+                    <!-- Unanswered -->
+                    <div class="kpi-card kpi-alert">
+                        <div class="kpi-label">Unanswered</div>
+                        <div class="kpi-value" id="kpiUnanswered">--</div>
+                        <div class="kpi-subtitle">conversations &gt; 2h without reply</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outbound Tab -->
+            <div id="outboundTab" class="dashboard-tab-content">
+                <!-- Global Outbound Summary -->
+                <div class="outbound-summary">
+                    <div class="summary-row">
+                        <div class="summary-stat">
+                            <span class="summary-label">Total Campaigns</span>
+                            <span class="summary-value" id="outboundTotalCampaigns">--</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="summary-label">Total Sent</span>
+                            <span class="summary-value" id="outboundTotalSent">--</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="summary-label">Delivery Rate</span>
+                            <span class="summary-value" id="outboundGlobalDelivery">--</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="summary-label">Read Rate</span>
+                            <span class="summary-value" id="outboundGlobalRead">--</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="summary-label">Reply Rate</span>
+                            <span class="summary-value" id="outboundGlobalReply">--</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="resultsContent" class="results-content">
-                    <p class="empty-state">Upload a photo and run a stage to see results</p>
+                <!-- Campaign Table -->
+                <div class="panel dashboard-panel">
+                    <h3>Campaign Performance</h3>
+                    <div class="table-wrapper">
+                        <table class="data-table" id="campaignTable">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortCampaignTable('name')">Campaign <span class="sort-icon"></span></th>
+                                    <th onclick="sortCampaignTable('sent')" class="num">Sent <span class="sort-icon"></span></th>
+                                    <th onclick="sortCampaignTable('delivered')" class="num">Delivered <span class="sort-icon"></span></th>
+                                    <th onclick="sortCampaignTable('deliveredPct')" class="num">Del. % <span class="sort-icon"></span></th>
+                                    <th onclick="sortCampaignTable('read')" class="num">Read <span class="sort-icon"></span></th>
+                                    <th onclick="sortCampaignTable('readPct')" class="num">Read % <span class="sort-icon"></span></th>
+                                    <th onclick="sortCampaignTable('replies')" class="num">Replies <span class="sort-icon"></span></th>
+                                    <th onclick="sortCampaignTable('replyPct')" class="num">Reply % <span class="sort-icon"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody id="campaignTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Campaign Drill-down Modal -->
+                <div id="campaignDrilldown" class="drilldown-panel" style="display:none;">
+                    <div class="drilldown-header">
+                        <h3 id="drilldownCampaignName">Campaign Details</h3>
+                        <button class="btn-close" onclick="closeCampaignDrilldown()">&times;</button>
+                    </div>
+                    <div class="drilldown-body">
+                        <p class="drilldown-subtitle">Conversations that replied</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Contact</th>
+                                    <th>Phone</th>
+                                    <th>Reply Time</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody id="drilldownTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inbound Tab -->
+            <div id="inboundTab" class="dashboard-tab-content">
+                <div class="inbound-layout">
+                    <!-- Funnel Visualization -->
+                    <div class="panel dashboard-panel">
+                        <h3>Inbound Triage Funnel</h3>
+                        <div class="funnel-container" id="funnelContainer">
+                            <!-- Funnel steps rendered by JS -->
+                        </div>
+                        <div class="funnel-note">
+                            <p>Priority: Highly Interested &gt; Interested &gt; Out of Target</p>
+                            <p>Click a funnel stage to see conversations</p>
+                        </div>
+                    </div>
+
+                    <!-- Funnel Drill-down -->
+                    <div id="funnelDrilldown" class="panel dashboard-panel" style="display:none;">
+                        <div class="drilldown-header">
+                            <h3 id="funnelDrilldownTitle">Conversations</h3>
+                            <button class="btn-close" onclick="closeFunnelDrilldown()">&times;</button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Contact</th>
+                                        <th>Tags</th>
+                                        <th>Last Message</th>
+                                        <th>Assignee</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="funnelDrilldownBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLA & Unanswered Tab -->
+            <div id="slaTab" class="dashboard-tab-content">
+                <div class="sla-grid">
+                    <!-- AI SLA -->
+                    <div class="panel dashboard-panel">
+                        <h3>AI First Response SLA</h3>
+                        <div class="sla-metrics">
+                            <div class="sla-metric-big">
+                                <div class="sla-metric-label">Median Response Time</div>
+                                <div class="sla-metric-value" id="slaAiMedian">--</div>
+                            </div>
+                            <div class="sla-metric-big">
+                                <div class="sla-metric-label">Within 2 minutes</div>
+                                <div class="sla-metric-value sla-good" id="slaAiWithin2m">--</div>
+                            </div>
+                        </div>
+                        <div class="sla-bar-container">
+                            <div class="sla-bar-label">% within target (2 min)</div>
+                            <div class="sla-bar">
+                                <div class="sla-bar-fill" id="slaAiBar" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div class="sla-definition">
+                            <strong>Definition:</strong> Time from customer's first inbound message to first AI response
+                        </div>
+                    </div>
+
+                    <!-- Human SLA -->
+                    <div class="panel dashboard-panel">
+                        <h3>Human Takeover SLA</h3>
+                        <div class="sla-metrics">
+                            <div class="sla-metric-big">
+                                <div class="sla-metric-label">Median Response Time</div>
+                                <div class="sla-metric-value" id="slaHumanMedian">--</div>
+                            </div>
+                            <div class="sla-metric-big">
+                                <div class="sla-metric-label">Within 1 hour</div>
+                                <div class="sla-metric-value sla-good" id="slaHumanWithin1h">--</div>
+                            </div>
+                        </div>
+                        <div class="sla-bar-container">
+                            <div class="sla-bar-label">% within target (1 hr)</div>
+                            <div class="sla-bar">
+                                <div class="sla-bar-fill" id="slaHumanBar" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div class="sla-definition">
+                            <strong>Definition:</strong> Time from last non-human message (customer or AI) to first human response
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unanswered Conversations -->
+                <div class="panel dashboard-panel unanswered-section">
+                    <div class="unanswered-header">
+                        <h3>Unanswered Conversations</h3>
+                        <span class="unanswered-badge" id="unansweredBadge">0</span>
+                    </div>
+                    <p class="unanswered-rule">Conversations where customer sent the last message and no AI/human reply within 2 hours</p>
+                    <div class="table-wrapper">
+                        <table class="data-table" id="unansweredTable">
+                            <thead>
+                                <tr>
+                                    <th>Contact</th>
+                                    <th onclick="sortUnansweredTable('lastMessageTime')">Last Message <span class="sort-icon"></span></th>
+                                    <th>Type</th>
+                                    <th>Owner</th>
+                                    <th onclick="sortUnansweredTable('age')">Age <span class="sort-icon"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody id="unansweredTableBody">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="app.js"></script>
+    <script src="sales-dashboard.js"></script>
 </body>
 </html>
